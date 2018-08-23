@@ -1,0 +1,45 @@
+{% extends 'default/base.html' %}
+{% block content %}
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-2">
+            {% include "ztree/app_tree.html" %}
+        </div>
+        <div class="col-lg-10">
+            <div class="ibox float-e-margins">
+                {% include "listOrAdd.html" %}
+                <br/>
+                <div id="replace">
+                {% include 'app/app_search.html' %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function(){
+        $('#add').on('click', function (event) {
+            var height = $(window).height()
+            layer.open({
+                type: 2,
+                shade: [0.5, '#000', true],
+                shadeClose: true,
+                maxmin: true,
+                fix: true,
+                moveOut: true,
+                shift: 'top',
+                border: [10, 0.3, '#000'],
+                title: "添加应用",
+                area: ['800px', (height - 50) + 'px'],
+                //area : ['80%', (height - 50)+'px'],
+                content: $("#add").attr("href"),
+                end: function () {
+                    refreshNode();
+                }
+            });
+            event.preventDefault();
+        });
+    });
+</script>
+{% endblock content %}

@@ -1,0 +1,13 @@
+django==1.8.17
+django-bootstrap3
+django-bootstrap-form
+xlwt
+lxml
+defusedxml
+django-tastypie==0.13.3
+django_crontab
+requests
+MySQL-python
+django-uuidfield
+IPy
+xlrd

@@ -1,0 +1,66 @@
+{% include 'link_css.html' %}
+{% include 'script.html' %}
+{% load bootstrap %}
+{% block content %}
+
+<body>
+    <div class="middle-box text-center animated fadeInDown">
+    <form class="form-horizontal" id="auth_group_from" method="post"  role="form">
+        {% csrf_token %}
+        {% include "ztree/association_app_tree.html" %}
+        </br>
+        </br>
+        <div class="form-group">
+               <!--<button class="btn btn-white" type="submit"> 重置 </button>-->
+               <a class="btn btn-primary" href="{% url 'app:appAssociation' %}?appid={{ request.GET.appid }}" onclick="return false" > 提交 </a>
+        </div>
+    </form>
+    </div>
+</body>
+<script>
+    $(document).ready(function(){
+        $('.btn-primary').click(function(){
+            var idList = new Array();
+            var fidList = new Array();
+            var nodes=zTreeObj.getCheckedNodes(true)
+            ////console.log(nodes)
+            for(var i=0;i<nodes.length;i++){
+                if(nodes[i].id != 0){
+                    idList.push(nodes[i].id);
+                    if(nodes[i].fid){
+                        fidList.push(nodes[i].fid);
+                    }
+                }
+            }
+            //console.log(idList)
+            //console.log(fidList)
+            var dataList = new Array();
+            $.each(idList,function(i,item){
+                //console.log(item);
+                var index = $.inArray(item, fidList);
+                //console.log(index)
+                 if (index == -1) {
+                    dataList.push(item);
+                }
+            });
+            //console.log(dataList)
+            if(dataList.length<1){
+                alert('请选择应用.')
+                return false;
+            }
+            var url = $(this).attr('href');
+            var args = {"csrfmiddlewaretoken":"{{ request.COOKIES.csrftoken }}","dataList":dataList}
+            console.log(args)
+            $.post(url,args, function(data){
+                if (data == 200){
+                    alert('配置成功!')
+                    var index = parent.layer.getFrameIndex(window.name); //获取当前窗体索引
+                          parent.layer.close(index);
+                } else {
+                    alert(data);
+                }
+            },"json");
+        });
+    });
+ </script>
+{% endblock content %}

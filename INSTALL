@@ -1,0 +1,39 @@
+#auto 不交互 
+
+#初始化脚本和导入 
+
+#init
+yum install -y mysql-devel python-devel -y 
+
+mysql -uroot -p'opsmysql!q$EWQ23FD23'  -e "create database mymdb";
+mysql -uroot -p'opsmysql!q$EWQ23FD23'  -e 'grant all on *.* to root@"%" identified by "opsmysql!q$EWQ23FD23"';
+#grant all on *.*  to root@'%' identified by 'opsmysql!q$EWQ23FD23';
+# err mysql -uroot -p'opsmysql!q$EWQ23FD23' -e "grant all on *.*  to root@'%' identified by 'opsmysql!q$EWQ23FD23'";
+
+mysql -uroot -p'opsmysql!q$EWQ23FD23' -e 'show databases';
+mysql -uroot -p'opsmysql!q$EWQ23FD23' -e 'drop database mycmdb';
+mysql -uroot -p'opsmysql!q$EWQ23FD23' -e ' create  database mycmdb';
+
+mysql -uroot -p'opsmysql!q$EWQ23FD23' -e 'flush privileges';
+
+python2.7 manage.py makemigrations  
+sleep 4
+ python2.7 manage.py migrate
+
+#django.db.utils.IntegrityError: (1215, 'Cannot add foreign key constraint') 不过早上 一开始没这问题的 
+
+#yum install -y mysql-devel python-devel -y 
+
+
+#django.db.utils.IntegrityError: (1215, 'Cannot add foreign key constraint' 第二次又好了 
+
+#如果没有这一步 ，mysql 只有结构  没有数据的  #RROR 1022 (23000) at line 450: Can't write; duplicate key in table 'myuser'
+mysql -uroot -p'opsmysql!q$EWQ23FD23' mycmdb < evatar_cmdb_dev.sql
+
+
+#run 
+python2.7 manage.py runserver 0.0.0.0:8888
+
+
+
+ python manage.py createsuperuser

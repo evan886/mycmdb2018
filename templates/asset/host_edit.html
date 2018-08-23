@@ -1,0 +1,395 @@
+{% include 'link_css.html' %}
+{% include 'script.html' %}
+{% load bootstrap %}
+{% load business_tag2 %}
+{% block content %}
+
+<style type="text/css">
+    body{background:#FFFFFF}
+</style>
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-10">
+            <div class="ibox-content">
+                <form class="form-horizontal" id="host_edit" method="post" name="horizontal" role="form" autocomplete="off">
+                    {% csrf_token %}
+                   {% if emg %}
+                        <div class="alert alert-warning text-center">{{ emg }}</div>
+                    {% endif %}
+                    {% if smg %}
+                        <div class="alert alert-success text-center">{{ smg }}</div>
+                    {% endif %}
+
+                    <div class="hr-line-dashed"></div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-2 col-lg-2 " for="id_group">所属机房</label>
+                        <div class=" col-sm-10 col-lg-10 ">
+                            <select class="form-control n-invalid" id="idc" aria-required="true" data-tip="" aria-invalid="true" data-inputstatus="error">
+                                <option value="{{ host.group.dataCenter.uuid }}" selected="selected">{{ host.group.dataCenter }}</option>
+                                {% for d in idc %}
+                                    <option value="{{ d.uuid }}">{{ d }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-2 col-lg-2 " for="id_group">所属机柜</label>
+                        <div class=" col-sm-10 col-lg-10 ">
+                            <select class="form-control n-invalid" id="cabinet" name="group" aria-required="true" data-tip="" aria-invalid="true" data-inputstatus="error">
+                                <option value="{{ host.group.uuid }}" selected="selected">{{ host.group.name }}</option>
+                                {% for c in cabinetList %}
+                                    <option value="{{ c.uuid }}">{{ c }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    {{ af.group_place|bootstrap_horizontal }}
+                    <div class="form-group">
+                        <label class="control-label col-sm-2 col-lg-2 " for="id_group">上联设备</label>
+                        <div class=" col-sm-10 col-lg-10 ">
+                            <select class="form-control n-invalid" id="relatedid" name = "relatedid" aria-required="true" data-tip="" aria-invalid="true" data-inputstatus="error">
+                                <option value="">无</option>
+                                {% if hostRelated %}
+                                    <option value="{{ hostRelated.equipmentid }}" selected="selected">{{ hostRelated }}</option>
+                                {% endif %}
+                                {% for r in relatedList %}
+                                    <option value="{{ r.equipmentid }}">{{ r }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    {{ af.relatedinfo|bootstrap_horizontal }}
+                    {{ af.sn|bootstrap_horizontal }}
+                    {{ af.name|bootstrap_horizontal }}
+                    {{ af.server|bootstrap_horizontal }}
+                    {{ af.server_type|bootstrap_horizontal }}
+                    <div class="form-group">
+                        <label class="control-label col-sm-2 col-lg-2 " for="id_group">宿主机</label>
+                        <div class=" col-sm-10 col-lg-10 ">
+                            <select class="form-control n-invalid" id="hosted" name="hosted" aria-required="true" data-tip="" aria-invalid="true" data-inputstatus="error">
+                                <option value="{{ host.hosted.equipmentid }}" selected="selected">{{ host.hosted }}</option>
+                                {% for h in hostedList %}
+                                    <option value="{{ h.equipmentid }}">{{ h }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    {{ af.status|bootstrap_horizontal }}
+                    {{ af.cpu|bootstrap_horizontal }}
+                    {{ af.hard_disk|bootstrap_horizontal }}
+                    {{ af.memory|bootstrap_horizontal }}
+                    <div class="ip" id="0">
+                    {{ af.ip|bootstrap_horizontal }}
+                    </div>
+
+
+                    {% for i in '123456789'|make_list %}
+                        {% if host|ip_info:i %}
+                            <div class="ip" id="{{ i }}">
+                                <div class="form-group">
+                                    <label class="control-label col-sm-2 col-lg-2 " for="id_ip{{ i }}">IP{{ i }}</label>
+                                    <div class=" col-sm-10 col-lg-10 ">
+                                        <input class=" form-control" id="id_ip{{ i }}" name="ip{{ i }}" type="text" value="{{ host|ip_info:i }}">
+                                        <div class="form-group">
+                                            <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="ip" id="{{ i }}" style="display:none">
+                                <div class="form-group">
+                                    <label class="control-label col-sm-2 col-lg-2 " for="id_ip{{ i }}">IP{{ i }}</label>
+                                    <div class=" col-sm-10 col-lg-10 ">
+                                        <input class=" form-control" id="id_ip{{ i }}" name="ip{{ i }}" type="text">
+                                        <div class="form-group">
+                                            <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                    {{ af.port|bootstrap_horizontal }}
+                    <div class="form-group">
+                        <label class="control-label col-sm-2 col-lg-2 " for="id_ilo">ILO地址</label>
+                        <div class=" col-sm-10 col-lg-10 ">
+                            {% if host.ilo %}
+                                <input class=" form-control" id="id_ilo" maxlength="32" name="ilo" type="text" value="{{ host.ilo }}">
+                            {% else %}
+                                <input class=" form-control" id="id_ilo" maxlength="32" name="ilo" type="text">
+                            {% endif %}
+                            <div class="form-group">
+                                <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    {{ af.use|bootstrap_horizontal }}
+                    {{ af.brand|bootstrap_horizontal }}
+                    {{ af.buy|bootstrap_horizontal }}
+                    {{ af.contract_start_time|bootstrap_horizontal }}
+                    {{ af.contract_end_time|bootstrap_horizontal }}
+                    {{ af.server_code|bootstrap_horizontal }}
+                    {{ af.comment|bootstrap_horizontal }}
+                    <div class="hr-line-dashed"></div>
+                    <div class="form-group">
+                       <div class="col-sm-4 col-sm-offset-5">
+                           <button class="btn btn-white" type="reset"> 重置 </button>
+                           <button id="postButton" class="btn btn-primary" type="submit" onclick="return false"> 提交 </button>
+                       </div>
+                   </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    window.$ && $(function(){
+    //验证初始化
+        $('#host_edit').validator({
+            //stopOnError:true,
+            //timely: 2,
+            theme: "yellow_right_effect",
+            showOk: "",
+            //自定义规则（PS：建议尽量在全局配置中定义规则，统一管理）
+            rules: {
+
+                check_ip: [/^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])(\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])){3}\/([8-9]|1[0-9]|2\d|3[0-1])$/,'格式不正确'],
+                check_port: [/^(\d|\d\d|\d\d\d|\d\d\d\d|\d\d\d\d\d)$/,'格式不正确'],
+                check_memory: [/^(\d|\d\d|\d\d\d|\d\d\d\d)$/,'格式不正确']
+
+            },
+            fields: {
+    
+                "ip":{
+                    rule: "required;check_ip",
+                    tip: "输入ip地址",
+                    ok:"",
+                    msg:{required: "必须填写!"}
+                },
+    
+                "ip1":{
+                    rule: "check_ip",
+                    tip: "输入ip地址",
+                    ok:"",
+                },
+                "ip2":{
+                    rule: "check_ip",
+                    tip: "输入ip地址",
+                    ok:"",
+                },
+                "ip3":{
+                    rule: "check_ip",
+                    tip: "输入ip地址",
+                    ok:"",
+                },
+                "ip4":{
+                    rule: "check_ip",
+                    tip: "输入ip地址",
+                    ok:"",
+                },
+                "ip5":{
+                    rule: "check_ip",
+                    tip: "输入ip地址",
+                    ok:"",
+                },
+                "ip6":{
+                    rule: "check_ip",
+                    tip: "输入ip地址",
+                    ok:"",
+                },
+                "ip7":{
+                    rule: "check_ip",
+                    tip: "输入ip地址",
+                    ok:"",
+                },
+                "ip8":{
+                    rule: "check_ip",
+                    tip: "输入ip地址",
+                    ok:"",
+                },
+                "ip9":{
+                    rule: "check_ip",
+                    tip: "输入ip地址",
+                    ok:"",
+                },
+                "ilo":{
+                    rule: "check_ip",
+                    tip: "输入ip地址",
+                    ok:"",
+                },
+                "group":{
+                    rule: "required;",
+                    tip: "",
+                    ok:"",
+                    msg:{required: "必选!"}
+                },
+                "server_type":{
+                    rule: "required;",
+                    tip: "",
+                    ok:"",
+                    msg:{required: "必选!"}
+                },
+                "port":{
+                    rule: "required;check_port",
+                    tip: "",
+                    ok:"",
+                    msg:{required: "输入不正确!"}
+                },
+                "memory":{
+                    rule: "required;check_memory",
+                    tip: "",
+                    ok:"",
+                    msg:{required: "输入不正确!"}
+                },
+            },
+            valid: function(form) {
+                form.submit();
+            }
+        });
+        $("#idc").change(function(){
+              $("#cabinet option").remove();
+              var idcID = $(this).val();
+              if(idcID != ""){
+                var url = "/asset/getCabinet/";
+                var args = {"idcid":idcID,"time":new Date()};
+                $.getJSON(url, args, function(data){
+                    if(data.length != 0){
+                        for(var i = 0; i < data.length; i++){
+                            var cabinetID = data[i].pk;
+                            var cabinetName = data[i].fields.name;
+                            $("#cabinet").append("<option value =" + cabinetID + ">" + cabinetName + "</option>")
+                        }
+                    }else{
+                      $("#cabinet").append("<option value=''>没有相关信息</option>")
+                    }
+                });
+                $("#relatedid option:gt(0)").remove();
+                var url = "/asset/getRelated/";
+                $.getJSON(url, args, function(data){
+                    if(data.length != 0){
+                        for(var i = 0; i < data.length; i++){
+                            var relatedID = data[i].pk;
+                            var relatedName = data[i].fields.name + '(' + data[i].fields.ip + ')';
+                            $("#relatedid").append("<option value =" + relatedID + ">" + relatedName + "</option>")
+                        }
+                    }else{
+                      $("#relatedid").append("<option value=''>没有相关信息</option>")
+                    }
+                });
+            }
+        });
+        $('.serviceEdit').on('click', function (event) {
+            var height = $(window).height()
+            layer.open({
+                type: 2,
+                shade: [0.5, '#000', true],
+                shadeClose: true,
+                maxmin: true,
+                fix: true,
+                moveOut: true,
+                shift: 'top',
+                border: [10, 0.3, '#000'],
+                title: "修改服务信息",
+                area: ['800px', (height - 50) + 'px'],
+                //area : ['80%', (height - 50)+'px'],
+                content: $(this).attr('href'),
+                end: function () {
+                    location.reload();
+                }
+            });
+            event.preventDefault();
+        });
+        $(".ip").click(function(){
+            //console.log($(this).next().attr("id"))
+            var nid = Number($(this).attr('id')) + 1
+            $("#" + nid).css("display","block");
+        });
+        $("#id_ip,#id_ip1,#id_ip2,#id_ip3,#id_ip4,#id_ip5,#id_ip6,#id_ip7,#id_ip8,#id_ip9,#id_ilo").bsSuggest({
+            allowNoKeyword: false,   //是否允许无关键字时请求数据。为 false 则无输入时不执行过滤请求
+            multiWord: true,         //以分隔符号分割的多关键字支持
+            separator: ",",          //多关键字支持时的分隔符，默认为空格
+            getDataMethod: "url",    //获取数据的方式，总是从 URL 获取
+            url: '/asset/getIP/', /*优先从url ajax 请求 json 帮助数据，注意最后一个参数为关键字请求参数*/
+            //jsonp: 'cb',
+    
+            //调整 ajax 请求参数方法，用于更多的请求配置需求。如对请求关键字作进一步处理、修改超时时间等
+            fnAdjustAjaxParam: function(keyword, opts) {
+                //console.log('ajax 请求参数调整：', keyword, opts);
+                return {
+                    //jsonp: 'cb',
+                    //dataType: 'jsonp',
+                    timeout: 10000,
+                    data: {
+                        idcid: $('#idc').val(),
+                        keyword: keyword
+                    }
+                };
+            },
+            // url 获取数据时，对数据的处理，作为 fnGetData 的回调函数
+            fnProcessData: function (json) {
+                var data = {value: []};
+                if(json.length != 0){
+                    for(var i = 0; i < json.length; i++){
+                        var relatedIP = json[i].ip;
+                        data.value.push({
+                            word: relatedIP
+                        });
+                    }
+                }
+                //字符串转化为 js 对象
+                return data;
+            }
+        });
+
+        $('.btn-primary').click(function(){
+            jQuery.ajax({
+                url: $(this).attr('href'),                  // 提交的页面
+                data: $('#host_edit').serialize(), // 从表单中获取数据
+                type: "POST",                       // 设置请求类型为"POST"，默认为"GET"
+                dataType:'text',
+                success: function(msg){
+                    if (msg == 200){
+                        alert('修改成功!');
+                        var index = parent.layer.getFrameIndex(window.name); //获取当前窗体索引
+                        parent.layer.close(index); //执行关闭
+                    } else {
+                        alert(msg)
+                    }
+                },
+                //error: function(request){
+                //    alert('修改失败!请检查名称/端口是否存在.');
+                //}
+            });
+        });
+    });
+    var start={
+        elem:"#id_contract_start_time",
+        format:"YYYY/MM/DD",
+        min:"2000-06-16",
+        max:"2099-06-16",
+        istime:false,
+        istoday:false,
+        choose:function(datas){
+            end.min=datas;
+            end.start=datas
+        }
+    };
+    var end={
+        elem:"#id_contract_end_time",
+        format:"YYYY/MM/DD",
+        min:laydate.now(),
+        max:"2099-06-16",
+        istime:false,
+        istoday:false,
+        choose:function(datas){
+            start.max=datas
+        }
+    };
+    laydate(start);laydate(end);
+</script>
+{% endblock content %}

@@ -1,0 +1,106 @@
+{% extends 'default/base.html' %}
+{% load bootstrap %}
+{% block content %}
+
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <h2>修改IDC | Edit IDC.</h2>
+    </div>
+    <div class="col-lg-2">
+    </div>
+</div>
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-10">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5> 填写IDC详细信息 </h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <i class="fa fa-wrench"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-user"></ul>
+                        <a class="close-link">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="ibox-content">
+                    <form class="form-horizontal"  method="post" role="form" >
+                        {% csrf_token %}
+                        {% if emg %}
+                            <div class="alert alert-warning text-center">{{ emg }}</div>
+                        {% endif %}
+                        {% if smg %}
+                            <div class="alert alert-success text-center">{{ smg }}</div>
+                        {% endif %}
+                        {{ uf |bootstrap_horizontal }}
+                        <div class="panel blank-panel">
+                            <div class="panel-heading">
+                                <div class="panel-options">
+                                    <ul class="nav nav-tabs">
+                                        <li class="active"><a data-toggle="tab">机柜信息</a>
+                                        </li>
+                                        <a href="/asset/cabinetAdd/?id={{ idc.uuid }}" class="label label-info pull-right cabinetedit">添加机柜</a>
+                                    </ul>
+
+                                </div>
+                            </div>
+                            <div class="file-manager">
+                                <ul class="tag-list" style="padding: 0">
+                                    {% for i in idcCabinet %}
+                                    <li><a href="/asset/cabinetEdit/?idcid={{ idc.uuid }}&id={{ i.uuid }}" class="cabinetedit"> {{ i }}</a></li>
+                                    {% endfor %}
+                                </ul>
+                                <div class="clearfloat"></div>
+                            </div>
+                        </div>
+                        <div class="hr-line-dashed"></div>
+                        <div class="form-group">
+                           <div class="col-sm-4 col-sm-offset-5">
+                                <a href="/asset/idcList/" class="btn btn-white"> 返回 </a>
+                               <button class="btn btn-primary" type="submit"> 提交 </button>
+                           </div>
+                       </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+$(document).ready(function(){
+    $('.cabinetedit').on('click', function (event) {
+        var height = $(window).height()
+        layer.open({
+            type: 2,
+            shade: [0.5, '#000', true],
+            shadeClose: true,
+            maxmin: true,
+            fix: true,
+            moveOut: true,
+            shift: 'top',
+            border: [10, 0.3, '#000'],
+            title: "修改机房信息",
+            area: ['800px', (height - 50) + 'px'],
+            //area : ['80%', (height - 50)+'px'],
+            content: $(this).attr('href'),
+            end: function () {
+                location.reload();
+            }
+        });
+        event.preventDefault();
+    });
+});
+</script>
+{% endblock content %}
+
+
+
+
+

@@ -1,0 +1,97 @@
+{% include 'link_css.html' %}
+{% include 'script.html' %}
+{% block content %}
+<div class="voilet_backgroup">  
+<div class="wrapper wrapper-content animated fadeInRight">
+<div class="col-md-10 column">
+    <form lass="form-horizontal" action="" id="onDuty_edit"  method="post" name="horizontal" role="form" autocomplete="off">
+    {% csrf_token %}
+        </br>
+        </br>
+        </br>
+        </br>
+        <div class="form-group">
+            <div class=" col-sm-10 col-lg-10 ">
+                <select class=" form-control layer-date" id="id_username" name="username">
+                    <option value="{{ onDutyInfo.title }}" selected="selected">{{ onDutyInfo.title }}</option>
+                    {% for u in userList %}
+                        <option value="{{ u.first_name }}">{{ u.first_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-sm-3">
+                <input placeholder="{{ onDutyInfo.start }}" value="{{ onDutyInfo.start }}" name="start" class="form-control layer-date" id="start">
+                </br>
+                <input placeholder="{{ onDutyInfo.end }}" value="{{ onDutyInfo.end }}" name="end" class="form-control layer-date" id="end">
+            </div>
+        </div>
+        </br>
+        <div class="col-sm-3">
+        <button class="btn btn-primary layer-date" onclick="return false"> 修改 </button>
+        <button class="btn btn-danger layer-date" name="del" value="del" onclick="return false"> 删除 </button>
+        </div>
+        </br>
+        </br>
+        </br>
+        </br>
+    </form>
+</div>
+</div>
+</div>
+<script>
+    $(document).ready(function(){
+        $('.btn').click(function(){
+            var isDel = $(this).val()
+            var data = $('#onDuty_edit').serialize()
+            if (isDel){
+                data = data + "&del=True"
+            }
+            jQuery.ajax({
+                url: $(this).attr('href'),              // 提交的页面
+                data: data, // 从表单中获取数据
+                type: "POST",                       // 设置请求类型为"POST"，默认为"GET"
+                dataType:'text',
+                success: function(msg){
+                      if (msg == 200){
+                          var index = parent.layer.getFrameIndex(window.name); //获取当前窗体索引
+                          parent.layer.close(index); //执行关闭
+                      } else {
+                          alert(msg);
+                      }
+                },
+                error: function(request){
+                    alert('添加失败!');
+                }
+            });
+        });
+        return false;
+    });
+    var start={
+        elem:"#start",
+        format:"YYYY-MM-DD",
+        min:laydate.now(),
+        max:"2099-06-16",
+        istime:false,
+        istoday:false,
+        choose:function(datas){
+            end.min=datas;
+            end.start=datas
+        }
+    };
+    var end={
+        elem:"#end",
+        format:"YYYY-MM-DD",
+        min:laydate.now(),
+        max:"2099-06-16",
+        istime:false,
+        istoday:false,
+        choose:function(datas){
+            start.max=datas
+        }
+    };
+    laydate(start);laydate(end);
+</script>
+{% endblock content %}

@@ -1,0 +1,98 @@
+<table class="table table-striped table-bordered table-hover">
+    <thead>
+        <tr>
+            <th class="text-center">所属机柜</th>
+            <th class="text-center">主机名</th>
+            <th class="text-center">IP</th>
+            <th class="text-center">类型</th>
+            <th class="text-center">状态</th>
+            <th class="text-center">操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for i in contacts.object_list %}
+            <tr >
+                <td class="text-center">{{ i.group }}</td>
+                <td class="text-center">{{ i.name }}</td>
+                <td class="text-center">{{ i.ip }}</td>
+                <td class="text-center">{{ i.server_type }}</td>
+                <td class="text-center">{{ i.get_status_display  }}</td>
+                <td class="text-center">
+                    <div class="btn-group" data-toggle="buttons">
+                        <a href="/asset/assetDetail/?id={{ i.equipmentid }}&page={{ current_page }}&select={{ select }}&keyword={{ keyword }}" class="btn btn-xs btn-primary detail" onclick="return false">详情</a>
+                        <a href="/asset/assetEdit/?id={{ i.equipmentid }}" class="btn btn-xs btn-success edit" onclick="return false">修改</a>
+                        <a href="/asset/assetDel/?id={{ i.equipmentid }}" class="btn btn-xs btn-danger"  onclick="return false">删除</a>
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<dir class="row">
+    <dir class="col-sm-6">
+    </dir>
+    {% include 'asset/paginator.html' %}
+</dir>
+<script type="text/javascript">
+    $(document).ready(function(){
+        $('.detail').click(function(){
+            ts = $(this)
+            var url = $(ts).attr('href');
+            $.ajax({
+            type: "GET",
+            url: url }).done(function( data ) {
+                 $("#table").html(data);
+            });
+        });
+        $('.edit').on('click', function (event) {
+            var height = $(window).height()
+            layer.open({
+                type: 2,
+                shade: [0.5, '#000', true],
+                shadeClose: true,
+                maxmin: true,
+                fix: true,
+                moveOut: true,
+                shift: 'top',
+                border: [10, 0.3, '#000'],
+                title: "设备修改",
+                area: ['800px', (height - 50) + 'px'],
+                //area : ['80%', (height - 50)+'px'],
+                content: $(this).attr('href'),
+                end: function () {
+                    var url = "/asset/assetList/?target=table&page={{ current_page }}&select={{ select }}&keyword={{ keyword }}";
+                    var args = {"csrfmiddlewaretoken":"{{ request.COOKIES.csrftoken }}"}
+                    $.post(url,args, function(data){
+                        $("#table").html(data);
+                    });
+                }
+            });
+            event.preventDefault();
+        });
+        $('.btn-danger').click(function(){
+            if (confirm("确定删除")) {
+                var ts = $(this)
+                var url = $(ts).attr('href');
+                var args = {"csrfmiddlewaretoken":"{{ request.COOKIES.csrftoken }}"}
+                $.post(url,args, function(data){
+                    if (data == 200){
+                        $(ts).parent().parent().parent().remove();
+                    } else if (data == 300){
+                        if (confirm("该设备下还存在服务,是否全部删除?")) {
+                            args.delete_service="True";
+                            $.post(url,args, function(data){
+                                if (data == 200){
+                                    $(ts).parent().parent().parent().remove();
+                                }else {
+                                    alert(data);
+                                }
+                            },"json");
+                        }
+                    } else {
+                        alert(data);
+                    }
+                },"json");
+            }
+        });
+    });
+</script>

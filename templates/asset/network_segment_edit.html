@@ -1,0 +1,183 @@
+{% extends 'default/base.html' %}
+{% load bootstrap %}
+{% block content %}
+
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <h2>修改网段 | Edit Network Segment.</h2>
+    </div>
+    <div class="col-lg-2">
+    </div>
+</div>
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-10">
+            <div class="ibox float-e-margins">
+                {% include "listOrAdd.html" %}
+                <div class="ibox-title">
+                    <h5> 详细信息 </h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <i class="fa fa-wrench"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-user"></ul>
+                        <a class="close-link">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="ibox-content">
+                <form class="form-horizontal" action="" id="network_segment_add"  method="post" name="horizontal" role="form" autocomplete="off">
+                {% csrf_token %}
+                    {% if emg %}
+                        <div class="alert alert-warning text-center">{{ emg }}</div>
+                    {% endif %}
+                    {% if smg %}
+                        <div class="alert alert-success text-center">{{ smg }}</div>
+                    {% endif %}
+
+                    {{ nf.type |bootstrap_horizontal }}
+                    <div class="hr-line-dashed"></div>
+                   <div class="form-group"><label class="col-sm-2 control-label">IP段</label>
+                        <div class="col-sm-10"><input type="text" value="{{ nsInfo.segment }}" name="segment" class="form-control"></div>
+                    </div>
+                    <div class="hr-line-dashed"></div>
+                    {{ nf.status |bootstrap_horizontal }}
+                    <div class="hr-line-dashed"></div>
+                    {{ nf.auto |bootstrap_horizontal }}
+                    <div class="hr-line-dashed"></div>
+                    <div class="form-group">
+                        <label for="idc" class="col-lg-2 control-label">所属机房</label>
+                        <div class="col-sm-3">
+                            <select id="idc" size="10" class="form-control m-b" multiple>
+                            {% for i in idcList %}
+                                <option value="{{ i.uuid }}">{{ i }}</option>
+                            {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-sm-1">
+                            <div class="btn-group" style="margin-top: 50px;">
+                                <button type="button" class="btn btn-white" onclick="move_right('idc', 'idc_selected')"><i class="fa fa-chevron-right"></i></button>
+                                <button type="button" class="btn btn-white" onclick="move_left('idc_selected', 'idc')"><i class="fa fa-chevron-left"></i> </button>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div>
+                                <select id="idc_selected" name="idc" class="form-control m-b" size="10"  multiple>
+                                {% for i in nsInfo.idc.all %}
+                                    <option value="{{ i.uuid }}">{{ i }}</option>
+                                {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hr-line-dashed"></div>
+                    {{ nf.comment |bootstrap_horizontal }}
+                    <div class="hr-line-dashed"></div>
+                    <div class="form-group">
+                        <div class="col-sm-4 col-sm-offset-5">
+                           <button class="btn btn-white" type="reset"> 重置 </button>
+                           <button id="postButton" class="btn btn-primary" type="submit"> 提交 </button>
+                        </div>
+                    </div>
+                </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    window.$ && $(function(){
+        $("#postButton").click(function(){
+
+            $("#idc option").each(function(){
+                $(this).removeAttr("selected");
+            });
+            $("#idc_selected option").each(function(){
+                $(this).prop("selected",true);
+            });
+            //$("#host_add").submit();
+        });
+        $('#ip_add').validator({
+            //stopOnError:true,
+            //timely: 2,
+            theme: "yellow_right_effect",
+            showOk: "",
+            //自定义规则（PS：建议尽量在全局配置中定义规则，统一管理）
+            rules: {
+
+                check_segment: [/^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])(\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])){3}\/([8-9]|1[0-9]|2\d|3[0-1])$/,'格式不正确']
+            },
+            fields: {
+    
+                "segment":{
+                    rule: "required;check_segment",
+                    tip: "",
+                    ok:"",
+                    msg:{required: "必须填写!"}
+                },
+                "status":{
+                    rule: "required;",
+                    tip: "",
+                    ok:"",
+                    msg:{required: "必选!"}
+                },
+                "type":{
+                    rule: "required;",
+                    tip: "",
+                    ok:"",
+                    msg:{required: "必选!"}
+                },
+                "auto":{
+                    rule: "required;",
+                    tip: "",
+                    ok:"",
+                    msg:{required: "必选!"}
+                }
+            },
+            valid: function(form) {
+                form.submit();
+            }
+        });
+        //$("apps_selected").change(function(){
+        //    var _id = $(this).val();
+        //    alert(_id);
+        //});
+    });
+
+
+    function move_left(from, to) {
+        $("#"+from+" option").each(function(){
+            if ( $(this).prop("selected") == true ) {
+                $("#"+to).append(this);
+                $(this).attr("selected",'false');
+            }
+            $(this).attr("selected",'true');
+        });
+        $("#"+to+" option").each(function(){
+            $(this).removeAttr("selected");
+        });
+        $("#"+from+" option").each(function(){
+            $(this).prop("selected",true);
+        });
+    }
+    function move_right(from, to) {
+        $("#"+from+" option").each(function(){
+            if ( $(this).prop("selected") == true ) {
+                $("#"+to).append(this);
+            }
+        });
+    }
+
+    //function move_all(from, to){
+    //    $("#"+from).children().each(function(){
+    //        $("#"+to).append(this);
+    //    });
+    //}
+</script>
+{% endblock content %}

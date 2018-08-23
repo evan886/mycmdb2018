@@ -1,0 +1,47 @@
+<style type="text/css">
+    body{background:#FFFFFF}
+</style>
+<BODY>
+<div>
+   <ul id="treeDemo" class="ztree"></ul>
+</div>
+</BODY>
+<SCRIPT LANGUAGE="JavaScript">
+    function refreshNode() {
+        var zTree = $.fn.zTree.getZTreeObj("treeDemo"),
+        type = "refresh",
+        silent = false,
+        nodes = zTree.getSelectedNodes();
+        for (var i=0, l=nodes.length; i<l; i++) {
+            zTree.reAsyncChildNodes(nodes[i], type, silent);
+            if (!silent) zTree.selectNode(nodes[i]);
+        }
+    }
+
+    var zTreeObj;
+    var setting = {
+        view:{
+            showIcon:false
+        },
+        data:{
+            simple:true
+        },
+       async : {
+            enable : true,
+            url : "{% url 'app:getTree' %}",
+            autoParam : [ "id" ],
+            otherParam : {
+                "csrfmiddlewaretoken":"{{ request.COOKIES.csrftoken }}"
+            },
+       },
+        check : {
+            enable: true,
+            chkboxType: { "Y" : "p", "N" : "p" },
+
+        },
+     };
+
+   $(document).ready(function(){
+        zTreeObj = $.fn.zTree.init($("#treeDemo"), setting);
+   });
+  </SCRIPT>

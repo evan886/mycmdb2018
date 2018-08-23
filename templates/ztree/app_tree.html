@@ -1,0 +1,111 @@
+<SCRIPT LANGUAGE="JavaScript">
+    function zTreeBeforeClick(treeId, treeNode, clickFlag) {
+        if (treeNode.id){
+            var url = "{% url 'app:appDetail' %}?id=" + treeNode.id;
+            $.ajax({
+            type: "GET",
+            url: url }).done(function( data ) {
+                NewAddUrl = "{% url 'app:appAdd' %}?fatherID=" + treeNode.id
+                $("#add").attr("href",NewAddUrl);
+                 $("#table").html(data);
+            });
+            return (treeNode.id !== 1);
+        } else{
+            var url = "{% url 'app:appList' %}"
+            $.ajax({
+            type: "GET",
+            url: url }).done(function( data ) {
+                 $("#replace").html(data);
+            });
+            NewAddUrl = "{% url 'app:appAdd' %}"
+            $("#add").attr("href",NewAddUrl);
+            refreshNode();
+        }
+    }
+
+    //刷新父节点  
+    function rereshParentNode(id){  
+        var treeObj = $.fn.zTree.getZTreeObj("treeDemo");  
+        var nownode = treeObj.getNodesByParam("id", id, null);  
+        var parent=nownode[0].getParentNode();
+        treeObj.reAsyncChildNodes(parent, "refresh");
+        treeObj.selectNode(nownode[0]);
+    }
+
+    //删除时使用的刷新父节点  
+    function delRereshParentNode(id){  
+        var treeObj = $.fn.zTree.getZTreeObj("treeDemo");  
+        var nownode = treeObj.getNodesByParam("id", id, null);  
+        var parent=nownode[0].getParentNode();
+        treeObj.reAsyncChildNodes(parent, "refresh");
+        if (parent.id == 0){
+            var url = "{% url 'app:appList' %}";
+            $.ajax({
+            type: "GET",
+            url: url }).done(function( data ) {
+                NewAddUrl = "{% url 'app:appAdd' %}"
+                $("#add").attr("href",NewAddUrl);
+                 $("#table").html(data);
+            });
+        } else{
+            var url = "{% url 'app:appDetail' %}?id=" + parent.id;
+            $.ajax({
+            type: "GET",
+            url: url }).done(function( data ) {
+                NewAddUrl = "{% url 'app:appAdd' %}?fatherID=" + parent.id
+                $("#add").attr("href",NewAddUrl);
+                 $("#table").html(data);
+            });
+        }
+
+    }
+
+    //刷新节点
+    function refreshNode() {
+        var zTree = $.fn.zTree.getZTreeObj("treeDemo"),
+        type = "refresh",
+        silent = false,
+        nodes = zTree.getSelectedNodes();
+        if (nodes.length > 0){
+            for (var i=0, l=nodes.length; i<l; i++) {
+                var node = nodes[i]
+                node.isParent = true
+                zTree.reAsyncChildNodes(node, type, silent);
+                if (!silent) zTree.selectNode(nodes[i]);
+            }
+        } else{
+            zTree.reAsyncChildNodes(null, type);
+        }
+    }
+
+
+    var zTreeObj;
+    var setting = {
+        view:{
+            showIcon:false
+        },
+        data:{
+            simple:true
+        },
+       async : {
+            enable : true,
+            url : "{% url 'app:getTree' %}",
+            autoParam : [ "id" ],
+            otherParam : {
+                "csrfmiddlewaretoken":"{{ request.COOKIES.csrftoken }}"
+            },
+       },
+        callback : {//请求成功后回调
+            beforeClick: zTreeBeforeClick
+        },
+     };
+
+   $(document).ready(function(){
+        zTreeObj = $.fn.zTree.init($("#treeDemo"), setting);
+   });
+  </SCRIPT>
+<BODY>
+<div>
+   <ul id="treeDemo" class="ztree"></ul>
+</div>
+</BODY>

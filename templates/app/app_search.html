@@ -1,0 +1,64 @@
+<div class="ibox-content">
+    <form id="app_form" >
+        <dir style="display:flex;justify-content:flex-end">
+            <div class="col-sm-3">
+                <div class="input-group">
+                    {% if request.GET.keyword and request.GET.keyword != 'None' %}
+                        <input type="text" class="form-control m-b" id="search_input" name="keyword" placeholder="任意key" value="{{ request.GET.keyword }}">
+                    {% else %}
+                        <input type="text" class="form-control m-b" id="search_input" name="keyword" placeholder="任意key">
+                    {% endif %}
+                    <input type="text" style="display: none">
+                    <div class="input-group-btn">
+                        <button type="button" href="{% url 'app:appList' %}?target=table" name="search" class="btn btn-xm btn-primary search_btn" onclick="return false">
+                            搜索
+                        </button>
+                        <!--<div class="btn-group" role="group">
+                            <button type="button" class="btn btn-xm btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                              导出
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">-->
+                                <!--<li><a href="/assets/host_search/?_search=true&name=pdf" class="search_btn_pdf" name="search" onclick="return false" >导出pdf</a></li>-->
+                                <!--<li><a href="/app/app_list/?download=true&name=excel&" class="search_btn_pdf" name="search" onclick="return false" >导出excel</a></li>
+                            </ul>
+                        </div>-->
+                    </div>
+                </div>
+            </div>
+            <div id="download"></div>
+        </dir>
+        <div id="table">
+            {% include 'app/app_list_table.html' %}
+        </div>
+    </form>
+</div>
+<script type="text/javascript">
+    $(document).ready(function(){
+        $('.search_btn').unbind('click').bind('click',function(){
+            var url= $(this).attr("href");
+        $.ajax({
+            type: "GET",
+            url: url,
+            data: $("#app_form").serialize(),
+            success: function (data) {
+                $("#table").html(data);
+            }
+            });
+        });
+        $('.search_btn_pdf').unbind('click').bind('click',function(){
+            var url= $(this).attr("href");
+            window.location = url + $("#app_form").serialize()
+        });
+        //$(".form-control").change(function(){
+        //    $.ajax({
+        //        type: "GET",
+        //        url: "/app/appList/",
+        //        data: $("#app_form").serialize(),
+        //        success: function (data) {
+        //            $("#replace").html(data);
+        //        }
+        //    });
+        //});
+    });
+</script>

@@ -1,0 +1,10 @@
+{% extends 'default/base.html' %}
+{% load business_tag2 %}
+{% load humanize %}
+{% block content %}
+    <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+            {% include 'asset/host_detail_content.html' %}         
+        </div>
+    </div>
+{% endblock %}

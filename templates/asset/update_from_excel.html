@@ -1,0 +1,52 @@
+
+{% include 'script.html' %}
+{% block content %}
+{% load bootstrap %}
+<link href="/static/css/plugins/layui/layui.css" rel="stylesheet"/>
+<div class="voilet_backgroup">
+    <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+            <div class="col-lg-10">
+                <!--<fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+                    <legend>选完文件后不自动上传</legend>
+                </fieldset>-->
+                 
+                <div class="layui-upload" style="margin-top: 30px; margin-left: 30px;">
+                    <button type="button" class="layui-btn layui-btn-normal" id="test8">选择文件</button>
+                    <button type="button" class="layui-btn" id="test9">开始上传</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    layui.use('upload', function(){
+        var $ = layui.jquery,upload = layui.upload;
+        upload.render({
+            elem: '#test8',
+            url: '/asset/updateFromExcel/',
+            auto: false,
+            accept: 'file',
+            exts: 'xlsx|xls',
+            //multiple: true,
+            data: {"csrfmiddlewaretoken":"{{ request.COOKIES.csrftoken }}"},
+            bindAction: '#test9',
+            before: function(obj){ //obj参数包含的信息，跟 choose回调完全一致，可参见上文。
+                layer.load(); //上传loading
+            },
+            done: function(res){
+                layer.closeAll('loading');
+                if(res.code == 0){
+                    layer.alert(res.msg, {skin: 'layui-layer-molv',closeBtn: 0},function(){
+                        var index = parent.layer.getFrameIndex(window.name); //获取当前窗体索引
+                        parent.layer.close(index); //执行关闭
+                    });
+                }
+            },
+            error: function(index, upload){
+                layer.closeAll('loading'); //关闭loading
+            }
+        });
+    });
+</script>
+{% endblock content %}

@@ -1,0 +1,300 @@
+{% load business_tag2 %}
+{% load humanize %}
+{% block content %}
+    <div class="col-lg-4">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+            <span class="text text-primary"><b>{{ host.ip }}</b></span>
+            <div class="ibox-tools">
+                <a class="collapse-link">
+                    <i class="fa fa-chevron-up"></i>
+                </a>
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                    <i class="fa fa-wrench"></i>
+                </a>
+                <ul class="dropdown-menu dropdown-user">
+                </ul>
+                <a class="close-link">
+                    <i class="fa fa-times"></i>
+                </a>
+            </div>
+            </div>
+            <div class="ibox-content ibox-heading">
+            <h3>主机基本信息</h3>
+            <small><i class="fa fa-map-marker"></i> 此主机基本信息.</small>
+            </div>
+            <div class="ibox-content">
+            <div>
+                <div class="text-left">
+                    <table class="table">
+                        <tr>
+                            <td class="text-navy">所属机柜</td>
+                            <td>{{ host.group }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-navy">位置</td>
+                            <td>{{ host.group_place }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-navy">上联设备</td>
+                            <td><a href="/asset/assetDetail/?id={{ hostRelated.equipmentid }}">{{ hostRelated }}</a></td>
+                        </tr>
+                        <tr>
+                            <td class="text-navy">上联端口</td>
+                            <td>{{ host.relatedinfo }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-navy">SN</td>
+                            <td>{{ host.sn }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-navy">设备名</td>
+                            <td>{{ host.name}}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-navy">操作系统</td>
+                            <td>{{ host.server }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-navy">设备类型</td>
+                            <td>{{ host.server_type }}</td>
+                        </tr>
+                       <tr>
+                            <td class="text-navy">宿主机</td>
+                            <td>{{ host.hosted }}</td>
+                            </td>
+                        </tr>
+                       <tr>
+                            <td class="text-navy">状态</td>
+                            <td>{{ host.get_status_display }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-navy">CPU</td>
+                            <td>{{ host.cpu}}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-navy">硬盘</td>
+                            <td>{{ host.hard_disk }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-navy">创建时间</td>
+                            <td>{{ host.create_time }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-navy">IP</td>
+                            <td>{{ host.ip }}</td>
+                        </tr>
+                        {% for i in '123456789'|make_list %}
+                            {% if host|ip_info:i %}
+                                <tr>
+                                    <td class="text-navy">IP{{ i }}</td>
+                                    <td>{{ host|ip_info:i }}</td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                        <tr>
+                            <td class="text-navy">SSH端口</td>
+                            <td>{{ host.port }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-navy">ILO地址</td>
+                            <td>{{ host.ilo }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-navy">用途</td>
+                            <td>{{ host.use }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-navy">型号</td>
+                            <td>{{ host.brand }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-navy">购买</td>
+                            <td>{{ host.get_buy_display }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-navy">合同开始时间</td>
+                            <td>{{ host.contract_start_time }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-navy">合同结束时间</td>
+                            <td>{{ host.contract_end_time }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-navy">server code</td>
+                            <td>{{ host.server_code }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-navy">备注</td>
+                            <td>{{ host.comment }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div class="col-sm-4 col-sm-offset-5">
+                <a href="/asset/assetEdit/?id={{ host.equipmentid }}" class="btn btn-success" onclick="return false"> 修改 </a>
+                <a href="/asset/assetList?page={{ request.GET.page }}&target=table&select={{ request.GET.select }}&keyword={{ request.GET.keyword }}" class="btn btn-white" id="reverse" onclick="return false"> 返回 </a>
+            </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>详细信息</h5>
+                <div class="ibox-tools">
+                    <a class="collapse-link">
+                        <i class="fa fa-chevron-up"></i>
+                    </a>
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                        <i class="fa fa-wrench"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-user">
+                    </ul>
+                    <a class="close-link">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="ibox-content ibox-heading">
+                <h3>主机详细信息</h3>
+                <small><i class="fa fa-map-marker"></i> 包含了此主机的关联信息.</small>
+            </div>
+            <div class="ibox-content">
+                <div>
+                    <div class="text-left">
+                        {% if host.server_type == 'VM' %}
+                            <table class="table">
+                            <tr>
+                                <h5 class="text-center">父主机信息</h5>
+                                <td class="text-navy">{{ host.hosted }}</td>
+                                <td><a href="/asset/assetDetail/?id={{ host.hosted.equipmentid }}&page={{ request.GET.page }}" class="btn btn-xs btn-primary details" onclick="return false">详情</a></td>
+                            </tr>
+                            </table>
+                        {% elif host.server_type == 'HOST' and  host.equipmentid|get_hosted_info %}
+                            <table class="table">
+                                <h5 class="text-center">子主机信息</h5>
+                                {% for h in host.equipmentid|get_hosted_info %}
+                                    <tr>
+                                        <td class="text-navy">{{ h }}</td>
+                                        <td><a href="/asset/assetDetail/?id={{ h.equipmentid }}&page={{ request.GET.page }}" class="btn btn-xs btn-primary details" onclick="return false">详情</a></td>
+                                    </tr>
+                                {% endfor %}
+                            </table>
+                        {% elif host.server_type == '交换机' and host.equipmentid|get_BottomAllied_Info %}
+                            <table class="table">
+                                <h5 class="text-center">下联设备信息</h5>
+                                {% for h in host.equipmentid|get_BottomAllied_Info %}
+                                    <tr>
+                                        <td class="text-navy">{{ h }}</td>
+                                        <td><a href="/asset/assetDetail/?id={{ h.equipmentid }}&page={{ request.GET.page }}" class="btn btn-xs btn-primary details" onclick="return false">详情</a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </table>
+                        {% endif %}
+                        <div class="hr-line-dashed"></div>
+                        <table class="table">
+                            <tr>
+                                <td><h5 class="text-center">服务信息</h5></td>
+                                <td> <a href="/asset/serviceAdd/?assetid={{ host.equipmentid }}&page={{ request.GET.page }}" class="btn btn-xs  btn-primary service" onclick="return false">添加</a></td>
+                                {% for service in serviceList %}
+                                    <tr>
+                                        <td class="text-navy">{{ service }}</td>
+                                        <td><a href="/asset/serviceEdit/?assetid={{ host.equipmentid }}&id={{ service.serviceid }}" class="service">详情</a></td>
+                                    </tr>
+                                {% endfor %}
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>修改记录</h5>
+                {% if request.user.is_superuser or request.session.fun_auth.edit_host %}
+                <a href="/asset/assetEdit/?id={{ host.equipmentid }}" data-toggle="tooltip" class="text-success pull-center" data-placement="bottom" title="修改" onclick="return false">&nbsp&nbsp&nbsp&nbsp点击修改</a>
+                {% endif %}
+                <div class="ibox-tools">
+                    <a class="collapse-link">
+                        <i class="fa fa-chevron-up"></i>
+                    </a>
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                        <i class="fa fa-wrench"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-user">
+                    </ul>
+                    <a class="close-link">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="ibox-content ibox-heading">
+
+                <h3>主机修改历史记录</h3>
+                <small><i class="fa fa-map-marker"></i> 此主机所有修改历史记录.</small>
+            </div>
+            <div class="ibox-content">
+                <div class="feed-activity-list">
+                    {% if asset_record %}
+                        {% for r in asset_record %}
+                            <div class="feed-element">
+                                <div>
+                                    <small class="pull-right">{{ r.time|naturaltime }}</small>
+                                    <strong class="text-navy">{{ r.user }}</strong>
+                                        {% for i in r.content|str_to_list %}
+                                            <div>{{ i }}</div>
+                                        {% endfor %}
+                                    <small class="text-success">{{ r.time }}</small>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-center">(暂无)</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+<script type="text/javascript">
+    $(document).ready(function(){
+        $('.details,#reverse').click(function(){
+            ts = $(this)
+            var url = $(ts).attr('href');
+            $.ajax({
+            type: "GET",
+            url: url }).done(function( data ) {
+                 $("#table").html(data);
+            });
+        });
+        $('.btn-success,.pull-center,.service').on('click', function (event) {
+            var height = $(window).height()
+            layer.open({
+                type: 2,
+                shade: [0.5, '#000', true],
+                shadeClose: true,
+                maxmin: true,
+                fix: true,
+                moveOut: true,
+                shift: 'top',
+                border: [10, 0.3, '#000'],
+                title: "   ",
+                area: ['800px', (height - 50) + 'px'],
+                //area : ['80%', (height - 50)+'px'],
+                content: $(this).attr('href'),
+                end: function () {
+                    var url = "/asset/assetDetail/?id={{ host.equipmentid  }}&page={{ request.GET.page }}&select={{ request.GET.select }}&keyword={{ request.GET.keyword }}";
+                    var args = {"csrfmiddlewaretoken":"{{ request.COOKIES.csrftoken }}"}
+                    $.post(url,args, function(data){
+                        $("#table").html(data);
+                    });
+                }
+            });
+            event.preventDefault();
+        });
+    });
+</script>
+{% endblock %}

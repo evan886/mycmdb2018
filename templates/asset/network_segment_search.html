@@ -1,0 +1,70 @@
+{% load business_tag %}
+<div class="ibox-title">
+    <h5> 网段列表
+        {%for menu in request.session.menuAuth%}
+            {% if menu.fields.htmlID == "ipAdd" %}
+               <a href="/{{ listOrAddTag.1 }}/{{ listOrAddTag.2 }}Add/{{ listOrAddTag.3 }}"class="btn btn-xs btn-primary " data-toggle="modal">添加</a>
+           {%endif%}
+        {%endfor%}
+        
+    </h5>
+    <div class="ibox-tools">
+        <a class="collapse-link">
+            <i class="fa fa-chevron-up"></i>
+        </a>
+        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+            <i class="fa fa-wrench"></i>
+        </a>
+        <ul class="dropdown-menu dropdown-user"></ul>
+        <a class="close-link">
+            <i class="fa fa-times"></i>
+        </a>
+    </div>
+</div>
+<div class="ibox-content">
+    <form id="ns_form" >
+        <dir style="display:flex;justify-content:flex-end">
+            <div class="col-sm-6">
+                <div class="input-group">
+                    <input type="text" class="form-control m-b" id="search_input" name="keyword" placeholder="IP网段/机房/备注">
+                    <input type="text" style="display: none">
+                    <div class="input-group-btn">
+                        <button href="/asset/networkSegmentList/?change_type={{ changetype }}" name="search" class="btn btn-xm btn-primary search_btn" onclick="return false">
+                        搜索
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div id="download"></div>
+        </dir>
+        <div id="table">
+        {% include 'asset/network_segment_list_table.html' %}
+        </div>
+    </form>
+</div>
+
+<script type="text/javascript">
+    // 菜单选择栏控制
+    var act = document.location.pathname.split("/")[2];
+    $("." + act).addClass('active');
+
+
+    $(document).ready(function(){
+        $('.search_btn').unbind('click').bind('click',function(){
+        var url= $(this).attr("href");
+        $.ajax({
+            type: "GET",
+            url: url,
+            data: $("#ns_form").serialize(),
+            success: function (data) {
+                $("#replace").html(data);
+            }
+            });
+        });
+        $('.search_btn_pdf').unbind('click').bind('click',function(){
+            var url= $(this).attr("href");
+            window.location = url + $("#ns_form").serialize()
+        });
+        
+    });
+</script>

@@ -1,0 +1,156 @@
+{% block content %}
+<div id="content">
+    <div class="col-lg-7">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+            <span class="text text-primary"><b>{{ appInfo }}</b></span>
+            <div class="ibox-tools">
+                <a class="collapse-link">
+                    <i class="fa fa-chevron-up"></i>
+                </a>
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                    <i class="fa fa-wrench"></i>
+                </a>
+                <ul class="dropdown-menu dropdown-user">
+                </ul>
+                <a class="close-link">
+                    <i class="fa fa-times"></i>
+                </a>
+            </div>
+            </div>
+            <div class="ibox-content ibox-heading">
+            <h3>应用基本信息</h3>
+            <small><i class="fa fa-map-marker"></i> 此应用基本信息.</small>
+            </div>
+            <div class="ibox-content">
+            <div>
+                <div class="text-left">
+                    <table class="table">
+                        <tr>
+                            <td class="text-navy">应用名称</td>
+                            <td>{{ appInfo.name }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-navy">别名</td>
+                            <td>{{ appInfo.another_name }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-navy">域名</td>
+                            <td>{{ appInfo.domain_name }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-navy">上线时间</td>
+                            <td>{{ appInfo.online_time }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-navy">运维人员</td>
+                            <td>{{ appInfo.yunwei}}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-navy">开发者</td>
+                            <td>{{ appInfo.developer }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-navy">备注</td>
+                            
+                            <td>{{ appInfo.comment|linebreaksbr }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div class="col-sm-6 col-sm-offset-3">
+                <a href="{% url 'app:appEdit' %}?id={{ appInfo.uuid }}" class="btn btn-primary layer"> 修改 </a>
+                <a href="{% url 'app:appDel' %}?id={{ appInfo.uuid }}" class="btn btn-danger delete" onclick="return false">删除</a>
+                <a href="{% url 'app:appList' %}?page={{ request.GET.page }}&keyword={{ request.GET.keyword }}" class="btn btn-white" onclick="return false"> 返回 </a>
+            </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>详细信息</h5>
+                <div class="ibox-tools">
+                    <a class="collapse-link">
+                        <i class="fa fa-chevron-up"></i>
+                    </a>
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                        <i class="fa fa-wrench"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-user">
+                    </ul>
+                    <a class="close-link">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="ibox-content ibox-heading">
+                <h3>应用详细信息</h3>
+                <small><i class="fa fa-map-marker"></i> 包含了此应用的关联信息.</small>
+            </div>
+            <div class="ibox-content">
+                <div>
+                    <div class="text-left" id="detail">
+                        {% include 'app/app_detail_content_detail.html' %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function(){
+        $('.layer').on('click', function (event) {
+            var height = $(window).height()
+            layer.open({
+                type: 2,
+                shade: [0.5, '#000', true],
+                shadeClose: true,
+                maxmin: true,
+                fix: true,
+                moveOut: true,
+                shift: 'top',
+                border: [10, 0.3, '#000'],
+                title: " ",
+                area: ['800px', (height - 50) + 'px'],
+                //area : ['80%', (height - 50)+'px'],
+                content: $(this).attr('href'),
+                end: function () {
+                    var url = "/app/appDetail/?id={{ appID }}&page={{ request.GET.page }}&keyword={{ request.GET.keyword }}";
+                    var args = {"csrfmiddlewaretoken":"{{ request.COOKIES.csrftoken }}"}
+                    $.post(url,args, function(data){
+                        $("#content").html(data);
+                    });
+                    rereshParentNode("{{ appID }}");
+                }
+            });
+            event.preventDefault();
+        });
+        $('.btn-white').unbind('click').bind('click',function(){
+            var url= $(this).attr("href");
+            $.ajax({
+                type: "GET",
+                url: url,
+                success: function (data) {
+                    $("#replace").html(data);
+                }
+            });
+        });
+        $('.delete').click(function(){
+            if (confirm("确定删除")) {
+                var ts = $(this)
+                var url = $(ts).attr('href');
+                var args = {"csrfmiddlewaretoken":"{{ request.COOKIES.csrftoken }}"}
+                $.post(url,args, function(data){
+                    if (data == 200){
+                        alert('删除成功.');
+                        delRereshParentNode("{{ appInfo.uuid }}");
+                    } else {
+                        alert(data);
+                    }
+                },"json");
+            }
+        });
+    });
+</script>
+{% endblock %}

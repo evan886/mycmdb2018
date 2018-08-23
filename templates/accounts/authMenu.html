@@ -1,0 +1,37 @@
+{% include 'link_css.html' %}
+{% include 'script.html' %}
+{% block content %}
+{% load bootstrap %}
+<style>
+.voilet_backgroup{background: #FFFFFF}
+</style>
+<div class="voilet_backgroup">
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="ibox float-e-margins">
+            <div class="ibox-content">
+                {% if m == 'myUser' %}
+                <div class="form-group"><label class="col-sm-2 control-label"> 用户 </label>
+                    <div class="col-sm-8"><li class="form-control" >{{ obj.first_name }} </li></div>
+                {%else%}
+                <div class="form-group"><label class="col-sm-2 control-label"> 部门 </label>
+                    <div class="col-sm-8"><li class="form-control" >{{ obj.departmentName }} </li></div>
+                {% endif %}
+                    <div class="col-sm-8" hidden="hidden"><input type="text" class="form-control" readonly="readonly"></div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="hr-line-dashed"></div>
+                <div class="col-sm-6 col-sm-offset-4">
+                    <a href="/accounts/auth/?id={{ obj.id }}&m={{ m }}" class="btn btn-primary btn-info select_node"  >菜单权限</a>
+
+                    <!--<a href="/accounts/dbAuth/?id={{ obj.id }}&m={{ m }}" class="btn btn-primary btn-info select_node"  >数据库权限</a>
+
+                    <a href="/accounts/ftpAuth/?id={{ obj.id }}&m={{ m }}" class="btn btn-primary btn-info select_node"  >FTP权限</a>-->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+{% endblock content %}

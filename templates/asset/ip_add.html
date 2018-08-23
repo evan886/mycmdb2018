@@ -1,0 +1,202 @@
+{% extends 'default/base.html' %}
+{% load bootstrap %}
+{% block content %}
+
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <h2>添加IP | Add IP.</h2>
+    </div>
+    <div class="col-lg-2">
+    </div>
+</div>
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-10">
+            <div class="ibox float-e-margins">
+                {% include "listOrAdd.html" %}
+                <div class="ibox-title">
+                    <h5> 填写IP详细信息 </h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <i class="fa fa-wrench"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-user"></ul>
+                        <a class="close-link">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="ibox-content">
+                <form class="form-horizontal" action="" id="ip_add"  method="post" name="horizontal" role="form" autocomplete="off">
+                {% csrf_token %}
+                    {% if emg %}
+                        <div class="alert alert-warning text-center">{{ emg }}</div>
+                    {% endif %}
+                    {% if smg %}
+                        <div class="alert alert-success text-center">{{ smg }}</div>
+                    {% endif %}
+
+                    <div class="form-group">
+                        <label class="control-label col-sm-2 col-lg-2 " for="id_segment">网段</label>
+                        <div class=" col-sm-10 col-lg-10 ">
+                            <select class=" form-control" id="id_segment" name="segment">
+                                {% if nsInfo %}
+                                    <option value="{{ nsInfo.uuid }}" selected="selected">{{ nsInfo }}</option>
+                                {% else %}
+                                    <option value="" selected="selected">---------</option>
+                                {%endif%}
+                                {% for d in networkSegmentList %}
+                                    <option value="{{ d.uuid }}">{{ d }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="hr-line-dashed"></div>
+                    {{ af.ip |bootstrap_horizontal }}
+                    <div class="hr-line-dashed"></div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="netmask">子网掩码</label>
+                        <div class="col-sm-10">
+                            <input type="text" id="netmask" readonly="readonly" name="netmask" class="form-control">
+                        </div>
+                    </div>
+                    <div class="hr-line-dashed"></div>
+                    {{ af.status |bootstrap_horizontal }}
+                    <div class="hr-line-dashed"></div>
+                    {{ af.type |bootstrap_horizontal }}
+                    <div class="hr-line-dashed"></div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-2 col-lg-2 " for="id_group">所属机房</label>
+                        <div class=" col-sm-10 col-lg-10 ">
+                            <select class="form-control n-invalid" id="idc" name="idc" aria-required="true" data-tip="" aria-invalid="true" data-inputstatus="error">
+                                <option value="" selected="selected">---------</option>
+                                {% for d in idcList %}
+                                    <option value="{{ d.uuid }}">{{ d.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="hr-line-dashed"></div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-2 col-lg-2 " for="id_group">所属机柜</label>
+                        <div class=" col-sm-10 col-lg-10 ">
+                            <select class="form-control n-invalid" id="cabinet" name="group" aria-required="true" data-tip="" aria-invalid="true" data-inputstatus="error">
+                                <option value="" selected="selected">---------</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="hr-line-dashed"></div>
+                    {{ af.host |bootstrap_horizontal }}
+                    <div class="hr-line-dashed"></div>
+                    {{ af.linkman |bootstrap_horizontal }}
+                    <div class="hr-line-dashed"></div>
+                    {{ af.comment |bootstrap_horizontal }}
+                    <div class="form-group">
+                        <div class="col-sm-4 col-sm-offset-5">
+                           <button class="btn btn-white" type="reset"> 重置 </button>
+                           <button id="postButton" class="btn btn-primary" type="submit"> 提交 </button>
+                        </div>
+                    </div>
+                </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    window.$ && $(function(){
+        $("#id_segment").change(function(){
+            var segment = $(this).find("option:selected").text();
+            
+            var url = "/asset/getNetmask/";
+            var args = {"segment":segment,"csrfmiddlewaretoken":"{{ request.COOKIES.csrftoken }}"};
+            $.post(url,args,function(data){
+                $("#netmask").text(data);
+                $("#netmask").val(data);
+            },"json");
+        });
+
+        $('#ip_add').validator({
+            //stopOnError:true,
+            //timely: 2,
+            theme: "yellow_right_effect",
+            showOk: "",
+            //自定义规则（PS：建议尽量在全局配置中定义规则，统一管理）
+            rules: {
+
+                check_ip: [/^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])(\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])){3}$/, 'ip不正确']
+            },
+            fields: {
+    
+                "ip":{
+                    rule: "required;check_ip",
+                    tip: "输入ip地址",
+                    ok:"",
+                    msg:{required: "必须填写!"}
+                },
+                "status":{
+                    rule: "required;",
+                    tip: "",
+                    ok:"",
+                    msg:{required: "必选!"}
+                },
+                "type":{
+                    rule: "required;",
+                    tip: "",
+                    ok:"",
+                    msg:{required: "必选!"}
+                }
+            },
+            valid: function(form) {
+                form.submit();
+            }
+        });
+        $("#id_segment").change(function(){
+            $("#idc option:gt(0)").remove();
+            var segmentid = $(this).val();
+            if(segmentid != ""){
+                var url = "/asset/getIdcFromSegment/";
+                var args = {"segmentid":segmentid,"time":new Date()};
+                $.getJSON(url, args, function(data){
+                    if(data.length != 0){
+                        for(var i = 0; i < data.length; i++){
+                            var idcID = data[i].pk;
+                            var idcName = data[i].fields.name;
+                            $("#idc").append("<option value =" + idcID + ">" + idcName + "</option>")
+                        }
+                    }else{
+                      $("#idc").append("<option>没有相关信息</option>")
+                    }
+                });
+            }
+        });
+        $("#idc").change(function(){
+            $("#cabinet option").remove();
+            var idcID = $(this).val();
+            if(idcID != ""){
+                var url = "/asset/getCabinet/";
+                var args = {"idcid":idcID,"time":new Date()};
+                $.getJSON(url, args, function(data){
+                    if(data.length != 0){
+                        for(var i = 0; i < data.length; i++){
+                            var cabinetID = data[i].pk;
+                            var cabinetName = data[i].fields.name;
+                            $("#cabinet").append("<option value =" + cabinetID + ">" + cabinetName + "</option>")
+                        }
+                    }else{
+                      $("#cabinet").append("<option value=''>没有相关信息</option>")
+                    }
+                });
+            } else {
+                $("#cabinet").append("<option value=''>没有相关信息</option>")
+            }
+        });
+    });
+
+</script>
+{% endblock content %}

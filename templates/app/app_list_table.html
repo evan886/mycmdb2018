@@ -1,0 +1,85 @@
+<style type="text/css">
+    a:hover{ color:#019838;/*鼠标经过链接时颜色*/}
+</style>
+
+<table class="table table-striped table-bordered table-hover">
+    <thead>
+        <tr>
+            <th class="text-center">应用</th>
+            <th class="text-center">操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for i in contacts.object_list %}
+            <tr>
+                <td class="text-center"><a href="{% url 'app:appDetail' %}?id={{ i.uuid }}&page={{ current_page }}&keyword={{ keyword }}" uuid="{{ i.uuid }}" class="detail" onclick="return false">{{ i }}</a></td>
+                <td class="text-center">
+                    <div class="btn-group" data-toggle="buttons">
+                     <a href="{% url 'app:appDetail' %}?id={{ i.uuid }}&page={{ current_page }}&keyword={{ keyword }}" uuid="{{ i.uuid }}" class="btn btn-xs btn-primary detail" onclick="return false">详情</a>
+                      <a href="{% url 'app:appEdit' %}?id={{ i.uuid }}" class="btn btn-xs btn-success " onclick="return false">修改</a>
+                      <a href="{% url 'app:appDel' %}?id={{ i.uuid }}" class="btn btn-xs btn-danger" onclick="return false">删除</a>
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<dir class="row">
+    <dir class="col-sm-6">
+    </dir>
+    {% include 'asset/paginator.html' %}
+</dir>
+<script type="text/javascript">
+    $(document).ready(function(){
+        $('.btn-danger').click(function(){
+            if (confirm("确定删除")) {
+                var ts = $(this)
+                var url = $(ts).attr('href');
+                var args = {"csrfmiddlewaretoken":"{{ request.COOKIES.csrftoken }}"}
+                $.post(url,args, function(data){
+                    if (data == 200){
+                        $(ts).parent().parent().parent().remove();
+                    } else {
+                        alert(data);
+                    }
+                },"json");
+            }
+        });
+        $('.btn-success').on('click', function (event) {
+            var height = $(window).height()
+            layer.open({
+                type: 2,
+                shade: [0.5, '#000', true],
+                shadeClose: true,
+                maxmin: true,
+                fix: true,
+                moveOut: true,
+                shift: 'top',
+                border: [10, 0.3, '#000'],
+                title: "修改应用",
+                area: ['800px', (height - 50) + 'px'],
+                //area : ['80%', (height - 50)+'px'],
+                content: $(this).attr('href'),
+                end: function () {
+                    var url = "{% url 'app:appList' %}?target=table&page={{ current_page }}&keyword={{ keyword }}";
+                    var args = {"csrfmiddlewaretoken":"{{ request.COOKIES.csrftoken }}"}
+                    $.post(url,args, function(data){
+                        $("#table").html(data);
+                    });
+                }
+            });
+            event.preventDefault();
+        });
+        $('.detail').click(function(){
+            ts = $(this)
+            var url = $(ts).attr('href');
+            $.ajax({
+            type: "GET",
+            url: url }).done(function( data ) {
+                NewAddUrl = "{% url 'app:appAdd' %}?fatherID=" + $(ts).attr('uuid')
+                $("#add").attr("href",NewAddUrl);
+                 $("#table").html(data);
+            });
+        });
+    });
+</script>

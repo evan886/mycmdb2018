@@ -1,0 +1,135 @@
+{% extends 'default/base.html' %}
+{% block content %}
+
+
+<body class="gray-bg">
+    <div class="wrapper wrapper-content">
+        <div class="row animated fadeInDown">
+            <div class="col-sm-3">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>值班概况</h5>
+                        <div class="ibox-tools">
+                            <a class="collapse-link">
+                                <i class="fa fa-chevron-up"></i>
+                            </a>
+                            <a class="close-link">
+                                <i class="fa fa-times"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="ibox-content">
+                        <div id='external-events'>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-9">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>值班日历 </h5>
+                        <div class="ibox-tools">
+                            <a class="collapse-link">
+                                <i class="fa fa-chevron-up"></i>
+                            </a>
+                            <a class="close-link">
+                                <i class="fa fa-times"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="ibox-content">
+                        <div id="calendar"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>            
+
+<script src="/static/js/fullcalendar/moment.min.js"></script>
+<script src="/static/js/fullcalendar/fullcalendar.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function(){
+        $("#calendar").fullCalendar({
+            dayClick: function(date, allDay, jsEvent, view) {
+                var height = $(window).height()
+                layer.open({
+                    type: 2,
+                    shade: [0.5, '#000', true],
+                    shadeClose: true,
+                    maxmin: true,
+                    fix: true,
+                    moveOut: true,
+                    shift: 'top',
+                    border: [10, 0.3, '#000'],
+                    title: "",
+                    area: ['500px', '400px'],
+                    //area : ['80%', (height - 50)+'px'],
+                    content: '/accounts/onDutyAdd/',
+                    end:function(){
+                        $("#calendar").fullCalendar('refetchEvents');  //对事项进行增删改之后可以用来单独刷新日历控件，而不要重新读取数据库
+                    }
+                });
+                event.preventDefault();
+            },
+
+            eventClick: function(calEvent, jsEvent, view) {
+                var height = $(window).height()
+                layer.open({
+                    type: 2,
+                    shade: [0.5, '#000', true],
+                    shadeClose: true,
+                    maxmin: true,
+                    fix: true,
+                    moveOut: true,
+                    shift: 'top',
+                    border: [10, 0.3, '#000'],
+                    title: "",
+                    area: ['500px', '400px'],
+                    //area : ['80%', (height - 50)+'px'],
+                    content: '/accounts/onDutyEdit/?id='+calEvent.id,
+                    end:function(){
+                        $("#calendar").fullCalendar('refetchEvents');  //对事项进行增删改之后可以用来单独刷新日历控件，而不要重新读取数据库
+                    }
+                });
+        
+                // change the border color just for fun
+                $(this).css('border-color', 'red');
+            },
+
+            events:function(start,end,timezone,callback){
+                var date = this.getDate().format('YYYY-MM');
+                console.log(date)
+                var url = "/accounts/onDuty/";
+                var args = {"date":date, "csrfmiddlewaretoken":"{{ request.COOKIES.csrftoken }}"}
+                $.post(url,args,function(data){
+                    var color = ['#a94442','#ed5565','#428bca','#23c6c8','#1ab394','#3c763d','#f8ac59','#a94442','#ed5565','#428bca','#23c6c8','#1ab394','#3c763d','#f8ac59']
+                    var events = []
+                    $("#external-events").empty();
+                    if(data.length != 0){
+                       for(var i = 0; i < data.length; i++){
+
+                            var name = data[i].fields.title
+                            var startTime = data[i].fields.start
+                            var endTime = data[i].fields.end
+                            events.push({
+                                id: data[i].pk,
+                                title: name,
+                                start: startTime,
+                                end: endTime,
+                                color: color[i]
+                            });
+                            var endDate = new Date(new Date(endTime.replace("-", "/").replace("-", "/")).getTime() - (1000 * 60 * 60 * 24))
+                            var endTime = endDate.getFullYear()+"-" + (endDate.getMonth()+1) + "-" + endDate.getDate();
+                            $("#external-events").append("<div class='external-event navy-bg'><p align='center'>" + name + "</p><p align='center'>[ " + startTime +" 至 " + endTime + " ]</p></div>")
+                        }
+                        callback(events);
+                    }
+                },"json");
+
+            }
+        })
+
+    });
+</script>
+{% endblock content %}

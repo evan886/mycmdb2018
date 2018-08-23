@@ -1,0 +1,106 @@
+{% include 'link_css.html' %}
+{% include 'script.html' %}
+{% block content %}
+{% load bootstrap %}
+<style>
+.voilet_backgroup{background: #FFFFFF}
+</style>
+<div class="voilet_backgroup">
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="ibox float-e-margins">
+            <div class="ibox-content">
+                <form class="form-horizontal" id="auth_group_from" method="post"  role="form">{% csrf_token %}
+                    {% if m == 'myUser' %}
+                    <div class="form-group"><label class="col-sm-2 control-label"> 用户 </label>
+                        <div class="col-sm-8"><li class="form-control" >{{ mobj.first_name }} </li></div>
+                    {%else%}
+                    <div class="form-group"><label class="col-sm-2 control-label"> 部门 </label>
+                        <div class="col-sm-8"><li class="form-control" >{{ mobj.departmentName }} </li></div>
+                    {% endif %}
+                        <div class="col-sm-8" hidden="hidden"><input type="text" class="form-control" readonly="readonly"></div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-3 col-sm-offset-2">
+                            <select id="mysql" size="10" class="form-control m-b" multiple>
+                            {% for i in smysqlList %}
+                                    <option value="{{ i.id }}">{{ i.other_ip }}</option>
+                            {%endfor%}
+                            {% for i in mysqlList %}
+                                <option value="{{ i.id }}">{{ i }}</option>
+                            {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-sm-1">
+                            <div class="btn-group" style="margin-top: 50px;">
+                                <button type="button" class="btn btn-white" onclick="move_right('mysql', 'mysql_selected')"><i class="fa fa-chevron-right"></i></button>
+                                <button type="button" class="btn btn-white" onclick="move_left('mysql_selected', 'mysql')"><i class="fa fa-chevron-left"></i> </button>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div>
+                                <select id="mysql_selected" name="mysql" class="form-control m-b" size="10"  multiple>
+                                    {% for i in userSMysqlList %}
+                                            <option value="{{ i.id }}">{{ i.other_ip }}</option>
+                                    {%endfor%}
+                                    {% for i in userMysqlList %}
+                                        <option value="{{ i.id }}">{{ i }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hr-line-dashed"></div>
+                    <div class="form-group">
+                       <div class="col-sm-4 col-sm-offset-5">
+                           <!--<button class="btn btn-white" type="submit"> 重置 </button>-->
+                           <a id="postButton" class="btn btn-primary" href="/accounts/dbAuth/?id={{ mobj.id }}&m={{ m }}" onclick="return false" > 提交 </a>
+                       </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<script>
+    $(document).ready(function(){
+        $('.btn-primary').click(function(){
+            $("#mysql option").each(function(){
+                $(this).removeAttr("selected");
+            });
+            $("#mysql_selected option").each(function(){
+                $(this).prop("selected",true);
+            });
+            jQuery.ajax({
+              url: $(this).attr('href'),                  // 提交的页面
+              data: $('#auth_group_from').serialize(), // 从表单中获取数据
+              type: "POST",                       // 设置请求类型为"POST"，默认为"GET"
+              dataType:'text',
+              success: function(msg){
+                  var index = parent.layer.getFrameIndex(window.name); //获取当前窗体索引
+                              parent.layer.close(index); //执行关闭
+              }
+            });
+          });
+          return false;
+
+    });
+    function move_left(from, to) {
+        $("#"+from+" option").each(function(){
+            if ( $(this).prop("selected") == true ) {
+                $("#"+to).append(this);
+                $(this).attr("selected",'false');
+            }
+            $(this).attr("selected",'true');
+        });
+    }
+    function move_right(from, to) {
+        $("#"+from+" option").each(function(){
+            if ( $(this).prop("selected") == true ) {
+                $("#"+to).append(this);
+            }
+        });
+    }
+ </script>
+{% endblock content %}

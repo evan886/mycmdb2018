@@ -1,0 +1,66 @@
+  <SCRIPT LANGUAGE="JavaScript">
+
+  function zTreeBeforeClick(treeId, treeNode, clickFlag) {
+    //console.log(treeId)
+    //console.log(treeNode)
+    //console.log(clickFlag)
+    if (treeNode.level == 0){
+        //location.href = "/asset/assetList/";
+        var url = "/asset/assetList/?change_idc=" + treeNode.id + "&target=table";
+            $.ajax({
+            type: "GET",
+            url: url }).done(function( data ) {
+                 $("#table").html(data);
+           });
+    }
+    else if (treeNode.level == 1){
+        var url = "/asset/assetList/?change_idc=" + treeNode.parentID + "&change_cabinet=" + treeNode.id + "&target=table";
+            $.ajax({
+            type: "GET",
+            url: url }).done(function( data ) {
+                 $("#table").html(data);
+           });
+    }
+    else if (treeNode.level == 2){
+        var url = "/asset/assetDetail/?id=" + treeNode.id;
+            $.ajax({
+            type: "GET",
+            url: url }).done(function( data ) {
+                 $("#table").html(data);
+           });
+    }
+    return (treeNode.id !== 1);
+};
+   var zTreeObj;
+   var setting = {
+    view:{
+        showIcon:false
+    },
+    callback: {
+    beforeClick: zTreeBeforeClick
+    },
+   };
+
+   $(document).ready(function(){
+        var url = '/asset/getTree'
+        $.ajax({
+            type: "get",
+            async: false,
+            url: url,
+            //dataType: "json",
+            success:function(data){
+                zNodes = data
+            },
+            //error: function(request){
+            //    console.log(request)
+            //    alert('获取树失败!')
+            //}
+        });
+        zTreeObj = $.fn.zTree.init($("#treeDemo"), setting, zNodes);
+   });
+  </SCRIPT>
+<BODY>
+<div>
+   <ul id="treeDemo" class="ztree"></ul>
+</div>
+</BODY>

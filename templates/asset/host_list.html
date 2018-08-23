@@ -1,0 +1,125 @@
+{% extends 'default/base.html' %}
+{% load business_tag %}
+{% block content %}
+<style>
+    .test_width{
+        width:130px;
+        padding-left: 10px;
+    }
+    .quick-search{ margin-top: 2px;}
+</style>
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <h2>服务器列表 | List server.</h2>
+    </div>
+</div>
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-2">
+            {% include "ztree/ztree.html" %}
+            <div class="ibox-content">
+                <div id='external-events'>
+                    <p>快速检索</p>
+                    <div class="btn-group-xs gradeX" action="status" data-toggle="buttons">
+                        <label class="btn btn-primary btn-outline">
+                            <input  type="checkbox" value="1"> 使用中
+                       </label>
+                       <label class="btn btn-primary btn-outline">
+                            <input type="checkbox" value="0"> 空闲
+                       </label>
+                       <label class="btn btn-primary btn-outline">
+                            <input type="checkbox" value="2"> 不可用
+                       </label>
+                       <label class="btn btn-primary btn-outline">
+                            <input type="checkbox" value="3"> 報修中
+                       </label>
+                       <label class="btn btn-primary btn-outline">
+                            <input type="checkbox" value="4"> 報廢
+                       </label>
+                    </div>
+                    </br>
+                    <div class="btn-group-xs gradeX" action="type" data-toggle="buttons">
+                        <label class="btn btn-primary btn-outline">
+                            <input  type="checkbox" value="ALONE"> ALONE
+                       </label>
+                       <label class="btn btn-primary btn-outline">
+                            <input type="checkbox" value="HOST"> HOST
+                       </label>
+                       <label class="btn btn-primary btn-outline">
+                            <input type="checkbox" value="VM"> VM
+                       </label>
+                       <label class="btn btn-primary btn-outline">
+                            <input type="checkbox" value="交换机"> 交换机
+                       </label><label class="btn btn-primary btn-outline">
+                            <input type="checkbox" value="防火墙"> 防火墙
+                       </label><label class="btn btn-primary btn-outline">
+                            <input type="checkbox" value="存储"> 存储
+                       </label>
+                    </div>
+                    </br>
+                    <div class="btn-group-xs gradeX" action="server" data-toggle="buttons">
+                        {% for s in servers %}
+                            <label class="btn btn-primary btn-outline">
+                                <input type="checkbox" value="{{ s }}"> {{ s }}
+                            </label>
+                       {% endfor %}
+                    </div>
+                    </br>
+                    <div class="btn-group-xs gradeX" action="buy" data-toggle="buttons">
+                        <label class="btn btn-primary btn-outline">
+                            <input  type="checkbox" value="1"> 所有权马上转移
+                       </label>
+                       <label class="btn btn-primary btn-outline">
+                            <input type="checkbox" value="2"> 24個月所有权转移
+                       </label>
+                       <label class="btn btn-primary btn-outline">
+                            <input type="checkbox" value="3"> 租用
+                       </label>
+                       <label class="btn btn-primary btn-outline">
+                            <input type="checkbox" value="4"> 我方購買
+                       </label>
+                    </div>
+                    </br>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-10">
+            {% include 'asset/host_search.html' %}
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+function getidsx() {
+    var check_array = [];
+    $(".btn:selected input, .btn.selected input").each(function () {
+        var action = $(this).parent().parent(".gradeX").attr("action")
+        var id = $(this).attr("value");
+        check_array.push(action + ":" +id);
+    });
+    return check_array.join(",");
+}
+    $(document).ready(function(){
+        $('.gradeX .btn-outline').click(function(){
+            if ($(this).hasClass("selected")) {
+                $(this).removeClass("selected")
+            } else {
+                $(this).addClass("selected");
+            }
+            var ids = getidsx();
+            if (ids) {
+                var url = $('.search_btn').attr("href") + "&select=" + ids
+                $(".search_btn").attr("href",url);
+            $.ajax({
+                type: "GET",
+                url: url,
+                data :$("#asset_form").serialize(),
+                success: function (data) {
+                    $("#table").html(data);
+                }
+            });
+            };
+        });
+    });
+</script>
+{% endblock %}

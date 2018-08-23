@@ -1,0 +1,168 @@
+{% load business_tag %}
+<div id="replace">
+<div class="ibox float-e-margins">
+    {% include 'listOrAdd.html' %}
+<br/>
+
+<div class="ibox-content">
+    <form id="asset_form" >
+        <dir style="display:flex;justify-content:flex-end">
+
+        {% comment %}
+        <div class="test_width" style="width:150px;">
+            <label>
+                <select name="change_idc" class="form-control m-b">
+                    <option value="all">所有数据中心</option>
+                    {% for i in idcs %}
+                        {% ifequal i.id cIdc %}
+                            <option value="{{ i.id }}" selected> {{ i }}</option>
+                        {% else %}
+                            <option value="{{ i.id }}"> {{ i }}</option>
+                        {% endifequal %}
+                    {% endfor %}
+                </select>
+            </label>
+        </div>
+        <div class="test_width">
+            <label>
+                <select name="change_type" class="form-control m-b">
+                    <option value="all">所有类型</option>
+                    {% for i in assetType %}
+                        {% ifequal i.0 cType %}
+                            <option value="{{ i.0 }}" selected> {{ i.1 }}</option>
+                        {% else %}
+                            <option value="{{ i.0 }}">{{ i.1 }}</option>
+                        {% endifequal %}
+                    {% endfor %}
+                </select>
+            </label>
+        </div>
+        <div class="test_width" style="padding-left: 0px">
+            <label>
+                <select name="change_project" class="form-control m-b">
+                    <option value="all">所有项目</option>
+                    {% for i in projects %}
+                        {% ifequal i cProject %}
+                            <option value="{{ i }}" selected> {{ i }}</option>
+                        {% else %}
+                            <option value="{{ i }}"> {{ i }}</option>
+                        {% endifequal %}
+                    {% endfor %}
+                </select>
+            </label>
+        </div>
+        <div class="test_width">
+            <label>
+                <select name="change_role" class="form-control m-b">
+                    <option value="all">所有角色</option>
+                    {% for i in roles %}
+                        {% ifequal i.id cRole %}
+                            <option value="{{ i.id }}" selected> {{ i }}</option>
+                        {% else %}
+                            <option value="{{ i.id }}"> {{ i }}</option>
+                        {% endifequal %}
+                    {% endfor %}
+                </select>
+            </label>
+        </div>
+        {% endcomment %}
+
+        <div class="col-sm-6">
+            <div class="input-group">
+                <input type="text" class="form-control m-b" id="search_input" name="keyword" placeholder="主机名/机房/机柜/SN/硬件信息/IP/端口/备注">
+                <input type="text" style="display: none">
+                <div class="input-group-btn">
+                    <button href="/asset/assetList/?change_idc={{ changeIdc }}&change_cabinet={{ changeCabinet }}&target=table" name="search" class="btn btn-xm btn-primary search_btn" onclick="return false">
+                        搜索
+                    </button>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-xm btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                          导入/导出
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a href="/asset/updateFromExcel" class="update_excel" name="search" onclick="return false" >导入excel</a></li>
+                            <li><a href="/asset/assetList/?download=true&name=excel&" class="download_excel" name="search" onclick="return false" >导出excel</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="download"></div>
+        </dir>
+        <div id="table">
+        {% include 'asset/host_list_table.html' %}
+        </div>
+    </form>
+</div>
+</div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function(){
+        $('#add').on('click', function (event) {
+            var height = $(window).height()
+            layer.open({
+                type: 2,
+                shade: [0.5, '#000', true],
+                shadeClose: true,
+                maxmin: true,
+                fix: true,
+                moveOut: true,
+                shift: 'top',
+                border: [10, 0.3, '#000'],
+                title: "添加设备",
+                area: ['800px', (height - 50) + 'px'],
+                //area : ['80%', (height - 50)+'px'],
+                content: $("#add").attr("href"),
+                end: function () {
+                    refreshNode();
+                }
+            });
+            event.preventDefault();
+        });
+
+        //delete host
+        $('.search_btn').unbind('click').bind('click',function(){
+        var url= $(this).attr("href");
+        $.ajax({
+            type: "GET",
+            url: url,
+            data: $("#asset_form").serialize(),
+            success: function (data) {
+                $("#table").html(data);
+            }
+            });
+        });
+
+        //update excel
+        $('.update_excel').unbind('click').bind('click',function (event) {
+            var height = $(window).height()
+            layer.open({
+                type: 2,
+                shade: [0.5, '#000', true],
+                shadeClose: true,
+                maxmin: true,
+                fix: true,
+                moveOut: true,
+                shift: 'top',
+                border: [10, 0.3, '#000'],
+                title: "上传服务器",
+                area: ['800px', '40%'],
+                //area : ['80%', (height - 50)+'px'],
+                //iframe: {src: $(this).attr('href')},
+                content: $(this).attr('href'),
+                end: function () {
+                    location.reload();
+                }
+            });
+            event.preventDefault();
+        });
+
+        //download excel
+        $('.download_excel').unbind('click').bind('click',function(){
+            var url= $(this).attr("href");
+            window.location = url + $("#asset_form").serialize()
+        });
+    });
+</script>

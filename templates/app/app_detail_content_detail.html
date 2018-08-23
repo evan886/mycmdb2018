@@ -1,0 +1,55 @@
+<table class="table">
+    <tr>
+        <td> <h5 class="text-center">分类信息</h5></td>
+        <td> <a href="{% url 'app:classifyAdd' %}?appid={{ appInfo.uuid }}" class="btn btn-xs btn-primary layer">添加</a></td>
+        {% if classifyList %}
+            {% for class in classifyList %}
+                <tr>
+                    <td class="text-navy"> <a href="/asset/assetDetail/?id={{ class.service.equipmentid.equipmentid }}" target="view_window">{{ class }}</td>
+                    <td><a href="{% url 'app:classifyEdit' %}?id={{ class.uuid }}" class="btn btn-xs btn-primary layer">分类详情</a></td>
+                </tr>
+            {% endfor %}
+        {% endif %}
+    </tr>
+<table class="table">
+    <tr>
+        <td> <h5 class="text-center">关联应用</h5></td>
+        <td> <a href="{% url 'app:appAssociation' %}?appid={{ appInfo.uuid }}" class="btn btn-xs btn-primary layer">添加关联</a></td>
+        {% if associationApp %}
+            {% for ChildApp in associationApp %}
+                <tr>
+                    <td class="text-navy">{{ ChildApp.app_id.name }}</td>
+                    <td><a href="{% url 'app:appAssociationRemove' %}?fid={{ appInfo.uuid }}&id={{ ChildApp.app_id.uuid }}" class="btn btn-xs btn-danger remove" onclick="return false">取消关联</a></td>
+                </tr>
+                {% for class in associationAppClassify %}
+                    {% if class.app ==  ChildApp.app_id %}
+                        <tr>
+                            <td><a href="/asset/assetDetail/?id={{ class.service.equipmentid.equipmentid }}" target="view_window">{{ class }}</td>
+                            <td><a href="{% url 'app:classifyEdit' %}?id={{ class.uuid }}" class="btn btn-xs btn-primary layer">分类详情</a></td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+        {% endif %}
+    </tr>
+</table>
+<script type="text/javascript">
+    $(document).ready(function(){
+        $('.remove').bind('click',function(){
+            var url = $(this).attr('href');
+            var args = {"csrfmiddlewaretoken":"{{ request.COOKIES.csrftoken }}"}
+            $.post(url,args, function(data){
+                if (data == 200){
+                    alert('取消成功!')
+                    var url = "/app/appDetail/?id={{ appInfo.uuid }}";
+                    var args = {"csrfmiddlewaretoken":"{{ request.COOKIES.csrftoken }}"}
+                    $.post(url,args, function(data){
+                        $("#content").html(data);
+                    });
+                } else {
+                    alert(data);
+                }
+            },"json");
+        });
+    });
+</script>

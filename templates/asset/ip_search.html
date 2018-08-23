@@ -1,0 +1,150 @@
+{% load business_tag %}
+
+
+<div class="ibox-title">
+    <h5> ip列表 
+        {%for menu in request.session.menuAuth%}
+            {% if menu.fields.htmlID == "ipAdd" %}
+               <a href="/{{ listOrAddTag.1 }}/{{ listOrAddTag.0 }}Add/{{ listOrAddTag.3 }}" id="add" class="btn btn-xs btn-primary " data-toggle="modal">添加</a>
+           {%endif%}
+        {%endfor%}
+        
+    </h5>
+    <div class="ibox-tools">
+        <a class="collapse-link">
+            <i class="fa fa-chevron-up"></i>
+        </a>
+        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+            <i class="fa fa-wrench"></i>
+        </a>
+        <ul class="dropdown-menu dropdown-user"></ul>
+        <a class="close-link">
+            <i class="fa fa-times"></i>
+        </a>
+    </div>
+</div>
+<div class="ibox-content">
+    <form id="ip_form" >
+        <dir style="display:flex;justify-content:flex-end">
+            <div class="col-sm-6">
+                <div id="host_list">
+                    <button type="button" class="btn btn-danger" id="batches_del">批量删除</button>
+                    <a value="/asset/ipEditBatch/" type="button" class="btn btn-warning iframe" id="batches_edit">批量修改</a>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="input-group">
+                    <input type="text" class="form-control m-b" id="search_input" name="keyword" placeholder="ip/机房/机柜/子网掩码">
+                    <input type="text" style="display: none">
+                    <div class="input-group-btn">
+                        <button href="/asset/ipList/?change_idc={{ change_idc }}&change_ns={{ change_ns }}" name="search" class="btn btn-xm btn-primary search_btn" onclick="return false">
+                        搜索
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="download"></div>
+        </dir>
+        <div id="table">
+        {% include 'asset/ip_list_table.html' %}
+        </div>
+    </form>
+</div>
+
+<script type="text/javascript">
+    // 菜单选择栏控制
+    var act = document.location.pathname.split("/")[2];
+    $("." + act).addClass('active');
+
+
+    $(document).ready(function(){
+        $('.search_btn').unbind('click').bind('click',function(){
+        var url= $(this).attr("href");
+        $.ajax({
+            type: "GET",
+            url: url,
+            data: $("#ip_form").serialize(),
+            success: function (data) {
+                $("#replace").html(data);
+            }
+            });
+        });
+        $('.search_btn_pdf').unbind('click').bind('click',function(){
+            var url= $(this).attr("href");
+            window.location = url + $("#ip_form").serialize()
+        });
+
+        $('.btn-danger').click(function(){
+            if (confirm("确定删除")) {
+                var ts = $(this)
+                var url = $(ts).attr('href');
+                var args = {"csrfmiddlewaretoken":"{{ request.COOKIES.csrftoken }}"}
+                $.post(url,args, function(data){
+                    if (data == 200){
+                        $(ts).parent().parent().parent().remove();
+                    } else {
+                        alert(data);
+                    }
+                },"json");
+            }
+        });
+
+        $('#batches_del').click(function () {
+            var ids = getids();
+            if (ids == ''){
+                alert("请至少选择一行!");
+                return false;
+            }
+            if (confirm("确定删除")) {
+                var dataUrl = ($(".search_btn").attr("href")) + "&target=table"
+                $.ajax({
+                    type: "post",
+                    data: {"ids": ids, "csrfmiddlewaretoken":"{{ request.COOKIES.csrftoken }}"},
+                    url: "/asset/ipDelBatch/",
+                    success: function (data) {
+                        if (data != 200){
+                            alert(data);
+                        }
+                        $.get(dataUrl, function(data){
+                            if(data.length != 0){
+                               $("#table").html(data)
+                            }
+                        });
+                    }
+                });
+            }
+        });
+
+        $(".iframe").on('click', function(){
+            var ids = getids();
+            if (ids == ''){
+                alert("请至少选择一行!");
+                return false;
+            }
+            var url= $(this).attr("value") + '?uuid=' + ids;
+            layer.open({
+                type: 2,
+                title: '批量修改IP',
+                maxmin: true,
+                shift: 'top',
+                border: [2, 0.3, '#1AB394'],
+                shade: [0.5, '#000000'],
+                shadeClose: true,
+                area : ['800px' , '600px'],
+                content: url,
+                end: function(){
+                    var dataUrl = ($(".search_btn").attr("href")) + "&target=table"
+                    console.log(dataUrl)
+                    $.get(dataUrl, function(data){
+                        if(data.length != 0){
+                           $("#table").html(data)
+                        }
+                    });
+                    //location.replace(location.href);
+                }
+            });
+        });
+
+    });
+</script>

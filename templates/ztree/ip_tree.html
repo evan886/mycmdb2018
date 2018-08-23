@@ -1,0 +1,62 @@
+<SCRIPT LANGUAGE="JavaScript">
+
+    function zTreeBeforeClick(treeId, treeNode, clickFlag) {
+        //console.log(treeId)
+        //console.log(treeNode)
+        //console.log(clickFlag)
+        //if (treeNode.level == 0){
+        //location.href = "/asset/assetList/";
+        //var url = "/asset/networkSegmentList/?change_type=" + treeNode.id;
+        //    $.ajax({
+        //    type: "GET",
+        //    url: url }).done(function( data ) {
+        //         $("#replace").html(data);
+        //   });
+        //}
+        if (treeNode.level == 1){
+        var url = "/asset/ipList/?change_ns=" + treeNode.id;
+            $.ajax({
+            type: "GET",
+            url: url }).done(function( data ) {
+                 $("#replace").html(data);
+           });
+        }
+        else if (treeNode.level == 2){
+        var url = "/asset/ipEdit/?id=" + treeNode.id;
+            $.ajax({
+            type: "GET",
+            url: url }).done(function( data ) {
+                 $("#replace").html(data);
+           });
+        }
+        return (treeNode.id !== 1);
+    };
+    var zTreeObj;
+    var setting = {
+        view:{
+            showIcon:false
+        },
+        //data{
+        //    simple:true
+        //},
+        async : {
+            enable : true,
+            url : "/asset/getIpTree/",
+            autoParam : [ "id" ],
+            otherParam : {
+                "csrfmiddlewaretoken":"{{ request.COOKIES.csrftoken }}"
+            },
+        },
+        callback: {
+            beforeClick: zTreeBeforeClick
+        },
+    };
+    $(document).ready(function(){
+        zTreeObj = $.fn.zTree.init($("#treeDemo"), setting);
+    });
+</SCRIPT>
+<BODY>
+<div>
+   <ul id="treeDemo" class="ztree"></ul>
+</div>
+</BODY>

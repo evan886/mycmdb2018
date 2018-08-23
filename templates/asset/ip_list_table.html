@@ -1,0 +1,56 @@
+<table class="table table-striped table-bordered table-hover">
+    <thead>
+        <tr>
+            <th class="text-center"><input type="checkbox" id="select_all" onclick="check_all('ip_form')"></th>
+            <th class="text-center">ip</th>
+            <th class="text-center">所属机房</th>
+            <th class="text-center">所属机柜</th>
+            <th class="text-center">使用状态</th>
+            <th class="text-center">责任人</th>
+            <th class="text-center">使用类型</th>
+            <th class="text-center">子网掩码</th>
+            <th class="text-center">操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for i in contacts.object_list %}
+            <tr class="gradeX">
+                <td class="text-center"><input type="checkbox" name="selected" value="{{ i.uuid }}"></td>
+                <td class="text-center">{{ i.ip }}</td>
+                <td class="text-center">{{ i.idc }}</td>
+                <td class="text-center">{{ i.group }}</td>
+                <td class="text-center">{{ i.get_status_display }}</td>
+                <td class="text-center">{{ i.linkman }}</td>
+                <td class="text-center">{{ i.get_type_display }}</td>
+                <td class="text-center">{{ i.netmask }}</td>
+                <td class="text-center">
+                    <div class="btn-group" data-toggle="buttons">
+                        <a href="/asset/ipEdit/?id={{ i.uuid }}" class="btn btn-xs btn-success " data-toggle="modal">详情/修改</a>
+                        <a href="/asset/ipDel/?id={{ i.uuid }}" class="btn btn-xs btn-danger"  onclick="return false">删除</a>
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<div class="row">
+    <div class="col-sm-6">
+    </div>
+    {% include 'asset/paginator.html' %}
+</dir>
+<script type="text/javascript">
+    var checked=false;
+    function check_all(form) {
+        var checkboxes = document.getElementById(form);
+        if (checked == false) {
+            checked = true
+        } else {
+            checked = false
+        }
+        for (var i = 0; i < checkboxes.elements.length; i++) {
+            if (checkboxes.elements[i].type == "checkbox") {
+                checkboxes.elements[i].checked = checked;
+            }
+        }
+    }
+</script>
