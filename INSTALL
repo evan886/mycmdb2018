@@ -3,37 +3,62 @@
 #初始化脚本和导入 
 
 #init
+
+#django.core.exceptions.ImproperlyConfigured: Error loading MySQLdb module: libmysqlclient.so.20: cannot open shared object file: No such file or directory
+ln -s /tmp/mysql.sock  /var/lib/mysql/
+ln -s  /data/apps/mysql/lib/libmysqlclient.so.20 /usr/lib64/libmysqlclient.so.20
+
+
+
 yum install -y mysql-devel python-devel -y 
 
-mysql -uroot -p'opsmysql!q$EWQ23FD23'  -e "create database mymdb";
-mysql -uroot -p'opsmysql!q$EWQ23FD23'  -e 'grant all on *.* to root@"%" identified by "opsmysql!q$EWQ23FD23"';
-#grant all on *.*  to root@'%' identified by 'opsmysql!q$EWQ23FD23';
-# err mysql -uroot -p'opsmysql!q$EWQ23FD23' -e "grant all on *.*  to root@'%' identified by 'opsmysql!q$EWQ23FD23'";
+#pip 
+mkdir -p ~/.pip
 
-mysql -uroot -p'opsmysql!q$EWQ23FD23' -e 'show databases';
-mysql -uroot -p'opsmysql!q$EWQ23FD23' -e 'drop database mycmdb';
-mysql -uroot -p'opsmysql!q$EWQ23FD23' -e ' create  database mycmdb';
+cat >>~/.pip/pip.conf<<EOF
+[global]
+index-url = http://mirrors.aliyun.com/pypi/simple/
+ 
+[install]
+trusted-host=mirrors.aliyun.com
+EOF
 
-mysql -uroot -p'opsmysql!q$EWQ23FD23' -e 'flush privileges';
+pip install -r requirements.txt
 
-python2.7 manage.py makemigrations  
+#create database
+mysql -uroot -p'mysql!q$EWQ23FD23'  -e "create database mycmdb";
+mysql -uroot -p'smysql!q$EWQ23FD23'  -e 'grant all on *.* to root@"%" identified by "opsmysql!q$EWQ23FD23"';
+#grant all on *.*  to root@'%' identified by 'smysql!q$EWQ23FD23';
+# err mysql -uroot -p'opsmysql!q$EWQ23FD23' -e "grant all on *.*  to root@'%' identified by 'omysql!q$EWQ23FD23'";
+
+mysql -uroot -p'mysql!q$EWQ23FD23' -e 'show databases';
+mysql -uroot -p'mysql!q$EWQ23FD23' -e 'drop database mycmdb';
+mysql -uroot -p'mysql!q$EWQ23FD23' -e ' create  database mycmdb';
+
+mysql -uroot -p'mysql!q$EWQ23FD23' -e 'flush privileges';
+
+
+#修改dj mysql 配置
+
+##初始化数据表
+cd mycmdb
+python2.7 manage.py makemigrations  #创建更改的文件
 sleep 4
- python2.7 manage.py migrate
+python2.7 manage.py migrate # 2. 将生成的py文件应用到数据库
 
 #django.db.utils.IntegrityError: (1215, 'Cannot add foreign key constraint') 不过早上 一开始没这问题的 
 
-#yum install -y mysql-devel python-devel -y 
-
-
 #django.db.utils.IntegrityError: (1215, 'Cannot add foreign key constraint' 第二次又好了 
 
+#初始化数据库
 #如果没有这一步 ，mysql 只有结构  没有数据的  #RROR 1022 (23000) at line 450: Can't write; duplicate key in table 'myuser'
-mysql -uroot -p'opsmysql!q$EWQ23FD23' mycmdb < evatar_cmdb_dev.sql
+mysql -uroot -p'mysql!q$EWQ23FD23' mycmdb < mycmdb20180222.sql # evatar_cmdb_dev.sql
 
+#[root@localhost mycmdb]# mysql -uroot -p'mysql!q$EWQ23FD23' mycmdb < evatar_cmdb_dev.sql
+#mysql: [Warning] Using a password on the command line interface can be insecure.
+#ERROR 1022 (23000) at line 450: Can't write; duplicate key in table 'myuser'
 
 #run 
 python2.7 manage.py runserver 0.0.0.0:8888
 
-
-
- python manage.py createsuperuser
+python manage.py createsuperuser --username=evan --email=evan886@gmail.com
